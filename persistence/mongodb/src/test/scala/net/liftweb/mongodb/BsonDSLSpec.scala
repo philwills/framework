@@ -27,11 +27,11 @@ import java.util.{Date, UUID}
 import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 import com.mongodb.{BasicDBList, DBObject}
 
-object BsonDSLSpec extends Specification("BsonDSL Specification") {
+class BsonDSLSpec extends Specification {
   "BsonDSL" should {
     "Convert ObjectId properly" in {
       val oid: ObjectId = ObjectId.get

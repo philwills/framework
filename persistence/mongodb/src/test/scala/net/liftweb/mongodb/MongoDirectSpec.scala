@@ -22,7 +22,7 @@ import java.util.regex.Pattern
 
 import com.mongodb.{BasicDBObject, BasicDBObjectBuilder}
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 import json.DefaultFormats
 
@@ -30,7 +30,8 @@ import json.DefaultFormats
 /**
  * System under specification for MongoDirect.
  */
-object MongoDirectSpec extends Specification("MongoDirect Specification") with MongoTestKit {
+class MongoDirectSpec extends Specification with MongoTestKit {
+  args(sequential=true)
 
   def date(s: String) = DefaultFormats.dateFormat.parse(s).get
 
@@ -96,6 +97,7 @@ object MongoDirectSpec extends Specification("MongoDirect Specification") with M
       val six = db.eval(" function() { return 3+3; } ")
       six must_== 6
     })
+    success
   }
 
   "Mongo tutorial 2 example" in {
@@ -193,6 +195,7 @@ object MongoDirectSpec extends Specification("MongoDirect Specification") with M
         coll.drop
       }
     })
+    success
   }
 
   "Mongo useSession example" in {
@@ -271,6 +274,7 @@ object MongoDirectSpec extends Specification("MongoDirect Specification") with M
         coll.drop
       }
     })
+    success
   }
 
   "UUID Example" in {
@@ -288,6 +292,7 @@ object MongoDirectSpec extends Specification("MongoDirect Specification") with M
       dbo2.get("_id") must_== dbo.get("_id")
       dbo2.get("name") must_== dbo.get("name")
     }
+    success
   }
 }
 

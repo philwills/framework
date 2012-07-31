@@ -21,7 +21,7 @@ import java.util.{Calendar, Date, TimeZone}
 
 import org.bson.types.ObjectId
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 
 package customserializersspecs {
@@ -51,7 +51,7 @@ package customserializersspecs {
 /**
  * Systems under specification for CustomSerializers.
  */
-object CustomSerializersSpec extends Specification("CustomSerializers Specification") with MongoTestKit {
+class CustomSerializersSpec extends Specification with MongoTestKit {
 
   import customserializersspecs._
 
@@ -72,11 +72,12 @@ object CustomSerializersSpec extends Specification("CustomSerializers Specificat
 
       // retrieve it and compare
       val jack2 = Person.find(jack._id)
-      jack2 must notBeEmpty
+      jack2.isDefined must beTrue
       jack2 foreach { j =>
         j._id mustEqual jack._id
         j.birthDate mustEqual jack.birthDate
       }
+      success
     }
 
     "handle Date as Date value using DateSerializer" in {
@@ -93,11 +94,12 @@ object CustomSerializersSpec extends Specification("CustomSerializers Specificat
 
       // retrieve it and compare
       val findJack = Person2.find(jack._id)
-      findJack must notBeEmpty
+      findJack.isDefined must beTrue
       findJack foreach { j =>
         j._id mustEqual jack._id
         j.birthDate mustEqual jack.birthDate
       }
+      success
     }
   }
 }

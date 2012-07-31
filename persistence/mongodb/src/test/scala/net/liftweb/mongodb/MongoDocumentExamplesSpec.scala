@@ -25,7 +25,7 @@ import java.util.regex.Pattern
 import org.bson.types.ObjectId
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject, MongoException}
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
 
 import json.DefaultFormats
 import json.JsonParser._
@@ -176,7 +176,8 @@ package mongotestdocs {
 /**
  * Systems under specification for MongoDocumentExamples.
  */
-class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Specification") with MongoTestKit {
+class MongoDocumentExamplesSpec extends Specification with MongoTestKit {
+  args(sequential=true)
   import mongotestdocs._
 
   override def dbName = "lift_mongodocumentexamples"
@@ -231,6 +232,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
     if (!debug) {
       SimplePerson.drop
     }
+    success
   }
 
   "Multiple Simple Person example" in {
@@ -282,6 +284,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
 
       SimplePerson.drop
     }
+    success
   }
 
   "Person example" in {
@@ -317,6 +320,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
 
       Person.drop
     }
+    success
   }
 
   "Mongo tutorial example" in {
@@ -332,7 +336,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
 
     // unique index on name
     val ixName = ixs.find(dbo => dbo.get("name") == "name_1")
-    ixName must notBeEmpty
+    ixName.isDefined must beTrue
     ixName foreach { ix =>
       ix.containsField("unique") must beTrue
       ix.get("unique").asInstanceOf[Boolean] must beTrue
@@ -340,7 +344,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
 
     // non-unique index on dbtype
     val ixDbtype = ixs.find(dbo => dbo.get("name") == "dbtype_1")
-    ixDbtype must notBeEmpty
+    ixDbtype.isDefined must beTrue
     ixDbtype foreach { ix =>
       ix.containsField("unique") must beFalse
     }
@@ -465,6 +469,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
     IDoc.findAll.length must_== 50
 
     IDoc.drop
+    success
   }
 
   "Mongo useSession example" in {
@@ -527,6 +532,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
       }
 
     })
+    success
   }
 
   "Primitives example" in {
@@ -554,6 +560,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
       pFromDb.isEmpty must_== true
       Primitive.drop
     }
+    success
   }
 
   "Ref example" in {
@@ -609,6 +616,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
 
     MainJDoc.drop
     RefJDoc.drop
+    success
   }
 
   "Pattern example" in {
@@ -624,6 +632,7 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
         pdoc.regx.pattern must_== pdoc1.regx.pattern
         pdoc.regx.flags must_== pdoc1.regx.flags
     }
+    success
   }
 
   "Issue 586 Date test" in {
@@ -654,6 +663,6 @@ class MongoDocumentExamplesSpec extends Specification("MongoDocumentExamples Spe
             sdd2.dt must_== sdd.dt
         }
     }
-
+    success
   }
 }
