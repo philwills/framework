@@ -22,7 +22,7 @@ import java.util.{Date, UUID}
 import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
-import org.specs.Specification
+import org.specs2.execute.Result
 
 import common._
 import json._
@@ -40,26 +40,26 @@ import Helpers._
 /**
  * Systems under specification for MongoField.
  */
-object MongoFieldSpec extends Specification("MongoField Specification") with MongoTestKit {
+class MongoFieldSpec extends MongoTestSpecification {
   import fixtures._
 
   val session = new LiftSession("", randomString(20), Empty)
-  def inLiftSession(a: =>Any) = S.initIfUninitted(session) { a }
+  /*def inLiftSession(a: =>Any) = S.initIfUninitted(session) { a }
   new SpecContext {
     aroundExpectations(inLiftSession(_))
-  }
+  }*/
   def passBasicTests[A](
     example: A,
     mandatory: MandatoryTypedField[A],
     legacyOptional: MandatoryTypedField[A],
     canCheckDefaultValues: Boolean = true
-  )(implicit m: scala.reflect.Manifest[A]): Unit = {
+  )(implicit m: scala.reflect.Manifest[A]): Result = {
 
-    def commonBehaviorsForAllFlavors(field: MandatoryTypedField[A]) = {
+    def commonBehaviorsForAllFlavors(field: MandatoryTypedField[A]): Result = {
 
       "which have the correct initial value" in {
-        field.value must beEqual(field.defaultValue).when(canCheckDefaultValues)
-        field.valueBox must beEqual(field.defaultValueBox).when(canCheckDefaultValues)
+        field.value must beEqualTo(field.defaultValue).when(canCheckDefaultValues)
+        field.valueBox must beEqualTo(field.defaultValueBox).when(canCheckDefaultValues)
       }
 
       "which are readable and writable" in {
@@ -75,7 +75,7 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
       }
 
       "which correctly clear back to the default" in {
-        { field.clear; field.valueBox } must beEqual(field.defaultValueBox).when(canCheckDefaultValues)
+        { field.clear; field.valueBox } must beEqualTo(field.defaultValueBox).when(canCheckDefaultValues)
       }
 
       "which capture error conditions set in" in {
@@ -83,17 +83,18 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
         // field.setBox(Failure("my failure"))
         // Failure("my failure") must_== Failure("my failure")
       }
+      success
     }
 
     "support mandatory fields" in {
-      setSequential()
+      args(sequential=true)
 
       "which are configured correctly" in {
         mandatory.optional_? must_== false
       }
 
       "which initialize to some value" in {
-        mandatory.valueBox must verify(_.isDefined)
+        mandatory.valueBox.isDefined must beTrue
       }
 
       "common behaviors for all flavors" in {
@@ -101,14 +102,15 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
       }
 
       "which correctly fail to be set to Empty" in {
-        mandatory.valueBox must verify(_.isDefined)
+        mandatory.valueBox.isDefined must beTrue
         mandatory.setBox(Empty)
-        mandatory.valueBox must beLike { case Failure(s, _, _) if s == mandatory.notOptionalErrorMessage => true }
+        mandatory.valueBox must beLike { case Failure(s, _, _) if s == mandatory.notOptionalErrorMessage => ok }
+        success
       }
     }
 
     "support 'legacy' optional fields (override optional_?)" in {
-      setSequential()
+      args(sequential=true)
 
       "which are configured correctly" in {
         legacyOptional.optional_? must_== true
@@ -139,11 +141,13 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
           legacyOptional.value must_== legacyOptional.defaultValue
           legacyOptional.valueBox must_== legacyOptional.defaultValueBox
         }
+        success
       }
     }
+    success
   }
 
-  def passConversionTests[A](example: A, mandatory: MandatoryTypedField[A], jsexp: JsExp, jvalue: JValue, formPattern: Box[NodeSeq]): Unit = {
+  def passConversionTests[A](example: A, mandatory: MandatoryTypedField[A], jsexp: JsExp, jvalue: JValue, formPattern: Box[NodeSeq]): Result = {
 
     /*
     "convert to JsExp" in {
@@ -170,7 +174,7 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
         val session = new LiftSession("", randomString(20), Empty)
         S.initIfUninitted(session) {
           val formXml = mandatory.toForm
-          formXml must notBeEmpty
+          formXml.isDefined must beTrue
           formXml foreach { fprime =>
             val f = ("* [name]" #> ".*" & "select *" #> (((ns: NodeSeq) => ns.filter {
               case e: Elem => e.attribute("selected").map(_.text) == Some("selected")
@@ -183,6 +187,7 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
         }
       }
     }
+    success
   }
 
   "DateField" should {
@@ -256,21 +261,25 @@ object MongoFieldSpec extends Specification("MongoField Specification") with Mon
 
   "PasswordField" should {
     "require a nonempty password" in {
-      val rec = PasswordTestRecord.createRecord
-      rec.password.setPassword("")
-      rec.validate must_== (
-        FieldError(rec.password, Text(S.?("password.must.be.set"))) ::
-        Nil
-      )
+      S.initIfUninitted(session) {
+        val rec = PasswordTestRecord.createRecord
+        rec.password.setPassword("")
+        rec.validate must_== (
+          FieldError(rec.password, Text(S.?("password.must.be.set"))) ::
+          Nil
+        )
+      }
     }
 
     "require at least 3 character password" in {
-      val rec = PasswordTestRecord.createRecord
-      rec.password.setPassword("ab")
-      rec.validate must_== (
-        FieldError(rec.password, Text(S.?("password.too.short"))) ::
-        Nil
-      )
+      S.initIfUninitted(session) {
+        val rec = PasswordTestRecord.createRecord
+        rec.password.setPassword("ab")
+        rec.validate must_== (
+          FieldError(rec.password, Text(S.?("password.too.short"))) ::
+          Nil
+        )
+      }
     }
   }
 

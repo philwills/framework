@@ -20,7 +20,6 @@ package record
 package field
 
 import org.bson.types.ObjectId
-import org.specs.Specification
 
 import net.liftweb.common._
 import net.liftweb.json.ext.EnumSerializer
@@ -68,7 +67,7 @@ package enumfieldspecs {
 /**
  * Systems under specification for EnumField.
  */
-object EnumFieldSpec extends Specification("EnumField Specification") with MongoTestKit {
+object EnumFieldSpec extends MongoTestSpecification {
 
   import enumfieldspecs._
 
@@ -80,13 +79,14 @@ object EnumFieldSpec extends Specification("EnumField Specification") with Mongo
       val er = EnumRec.createRecord.save
 
       val erFromDb = EnumRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dow.value mustEqual WeekDay.Mon
         er2.dowOptional.valueBox mustEqual Empty
         er2.jsonobj.value mustEqual JsonObj(WeekDay.Mon)
       }
+      success
     }
 
     "work with set values" in {
@@ -98,12 +98,13 @@ object EnumFieldSpec extends Specification("EnumField Specification") with Mongo
         .save
 
       val erFromDb = EnumRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dow.value mustEqual WeekDay.Tue
         er2.jsonobj.value mustEqual JsonObj(WeekDay.Sun)
       }
+      success
     }
 
     "work with Empty optional values" in {
@@ -114,11 +115,12 @@ object EnumFieldSpec extends Specification("EnumField Specification") with Mongo
       er.save
 
       val erFromDb = EnumRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dowOptional.valueBox mustEqual Empty
       }
+      success
     }
 
     "work with Full optional values" in {
@@ -129,11 +131,12 @@ object EnumFieldSpec extends Specification("EnumField Specification") with Mongo
       er.save
 
       val erFromDb = EnumRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dowOptional.valueBox mustEqual Full(WeekDay.Sat)
       }
+      success
     }
   }
 }

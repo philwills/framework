@@ -25,8 +25,6 @@ import java.util.regex.Pattern
 import org.bson.types.ObjectId
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject, MongoException}
 
-import org.specs2.mutable.Specification
-
 import json.DefaultFormats
 import json.JsonParser._
 
@@ -176,7 +174,7 @@ package mongotestdocs {
 /**
  * Systems under specification for MongoDocumentExamples.
  */
-class MongoDocumentExamplesSpec extends Specification with MongoTestKit {
+class MongoDocumentExamplesSpec extends MongoTestSpecification {
   args(sequential=true)
   import mongotestdocs._
 

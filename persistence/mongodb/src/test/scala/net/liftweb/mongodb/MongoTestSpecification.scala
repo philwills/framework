@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package net.liftweb 
-package mongodb 
-package record 
+package net.liftweb
+package mongodb
 
-import org.specs.Specification
+import org.specs2.mutable.Specification
+import org.specs2.specification.{Fragments, Step}
 
 import com.mongodb._
 
-trait MongoTestKit {
-  this: Specification =>
+trait MongoTestSpecification extends Specification {
+
+  override def map(fs: => Fragments) = Step(doBeforeSpec) ^ fs ^ Step(doAfterSpec)
 
   def dbName = "lift_record_"+this.getClass.getName
     .replace("$", "")
@@ -34,12 +35,12 @@ trait MongoTestKit {
   val defaultHost = MongoHost("127.0.0.1", 27017)
 
   // If you need more than one db, override this
-  def dbs: List[(MongoIdentifier, MongoHost, String)] = 
+  def dbs: List[(MongoIdentifier, MongoHost, String)] =
     List((DefaultMongoIdentifier, defaultHost, dbName))
 
   def debug = false
 
-  doBeforeSpec {
+  def doBeforeSpec: Unit = {
     // define the dbs
     dbs foreach { dbtuple =>
       MongoDB.defineDb(dbtuple._1, MongoAddress(dbtuple._2, dbtuple._3))
@@ -60,10 +61,9 @@ trait MongoTestKit {
       case _ => false
     }
 
-  def checkMongoIsRunning =
-    isMongoRunning must beEqualTo(true).orSkipExample
+  def checkMongoIsRunning = isMongoRunning must beEqualTo(true).orSkip("MongoDB is not running")
 
-  doAfterSpec {
+  def doAfterSpec: Unit = {
     if (!debug && isMongoRunning) {
       // drop the databases
       dbs foreach { dbtuple =>

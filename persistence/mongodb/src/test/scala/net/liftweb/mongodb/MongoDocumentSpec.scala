@@ -19,7 +19,6 @@ package mongodb
 
 import org.bson.types.ObjectId
 import org.specs2.execute.Result
-import org.specs2.mutable.Specification
 
 import common._
 import json.ext.JsonBoxSerializer
@@ -91,7 +90,7 @@ package mongodocumentspecs {
 /**
  * System specification for MongoDocument
  */
-class MongoDocumentSpec extends Specification with MongoTestKit {
+class MongoDocumentSpec extends MongoTestSpecification {
   args(sequential=true)
 
   def passSaveAndRetrieveTests(obj: MongoDocument[_], meta: MongoDocumentMeta[_]): Result = {

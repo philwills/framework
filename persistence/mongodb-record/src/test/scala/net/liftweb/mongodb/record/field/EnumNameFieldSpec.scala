@@ -20,7 +20,6 @@ package record
 package field
 
 import org.bson.types.ObjectId
-import org.specs.Specification
 
 import net.liftweb.common._
 import net.liftweb.json.ext.EnumNameSerializer
@@ -68,7 +67,7 @@ package enumnamefieldspecs {
 /**
  * Systems under specification for EnumNameField.
  */
-object EnumNameFieldSpec extends Specification("EnumNameField Specification") with MongoTestKit {
+object EnumNameFieldSpec extends MongoTestSpecification {
 
   import enumnamefieldspecs._
 
@@ -80,13 +79,14 @@ object EnumNameFieldSpec extends Specification("EnumNameField Specification") wi
       val er = EnumNameRec.createRecord.save
 
       val erFromDb = EnumNameRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dow.value mustEqual WeekDay.Mon
         er2.dowOptional.valueBox mustEqual Empty
         er2.jsonobj.value mustEqual JsonObj(WeekDay.Mon)
       }
+      success
     }
 
     "work with set values" in {
@@ -98,12 +98,13 @@ object EnumNameFieldSpec extends Specification("EnumNameField Specification") wi
         .save
 
       val erFromDb = EnumNameRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dow.value mustEqual WeekDay.Tue
         er2.jsonobj.value mustEqual JsonObj(WeekDay.Sun)
       }
+      success
     }
 
     "work with Empty optional values" in {
@@ -114,11 +115,12 @@ object EnumNameFieldSpec extends Specification("EnumNameField Specification") wi
       er.save
 
       val erFromDb = EnumNameRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dowOptional.valueBox mustEqual Empty
       }
+      success
     }
 
     "work with Full optional values" in {
@@ -129,11 +131,12 @@ object EnumNameFieldSpec extends Specification("EnumNameField Specification") wi
       er.save
 
       val erFromDb = EnumNameRec.find(er.id)
-      erFromDb must notBeEmpty
+      erFromDb.isDefined must beTrue
       erFromDb foreach { er2 =>
         er2 mustEqual er
         er2.dowOptional.valueBox mustEqual Full(WeekDay.Sat)
       }
+      success
     }
   }
 }

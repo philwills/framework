@@ -21,9 +21,6 @@ import java.util.{Calendar, Date, TimeZone}
 
 import org.bson.types.ObjectId
 
-import org.specs2.mutable.Specification
-
-
 package customserializersspecs {
 
   /*
@@ -51,7 +48,7 @@ package customserializersspecs {
 /**
  * Systems under specification for CustomSerializers.
  */
-class CustomSerializersSpec extends Specification with MongoTestKit {
+class CustomSerializersSpec extends MongoTestSpecification {
 
   import customserializersspecs._
 

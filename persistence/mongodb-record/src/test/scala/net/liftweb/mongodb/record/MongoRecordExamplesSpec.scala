@@ -28,8 +28,6 @@ import net.liftweb.json.JsonAST.JObject
 import net.liftweb.record.field._
 import net.liftweb.util.TimeHelpers._
 
-import org.specs.Specification
-
 import com.mongodb._
 import org.bson.types.ObjectId
 import http.{S, LiftSession}
@@ -237,17 +235,18 @@ package mongotestrecords {
 /**
  * Systems under specification for MongoRecordExamples.
  */
-object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specification") with MongoTestKit {
-  import mongotestrecords._
+class MongoRecordExamplesSpec extends MongoTestSpecification {
   import net.liftweb.util.TimeHelpers._
 
   val session = new LiftSession("hello", "", Empty)
-  "TstRecord example" in {
+  import mongotestrecords._
 
+  args(sequential=true)
+
+  "TstRecord example" in {
     checkMongoIsRunning
 
-    S.initIfUninitted(session){
-
+    S.initIfUninitted(session) {
       val pwd = "test"
       val cal = Calendar.getInstance
       cal.set(2009, 10, 2)
@@ -305,10 +304,10 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
 
       if (!debug) TstRecord.drop
     }
+    success
   }
 
   "Ref example" in {
-
     checkMongoIsRunning
 
     val ref1 = RefDoc.createRecord
@@ -457,6 +456,7 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
       RefDoc.drop
       RefStringDoc.drop
     }
+    success
   }
 
   "List example" in {
@@ -513,10 +513,10 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
       ListDoc.drop
       RefDoc.drop
     }
+    success
   }
 
   "Map Example" in {
-
     checkMongoIsRunning
 
     val md1 = MapDoc.createRecord
@@ -527,10 +527,10 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
     md1.delete_!
 
     if (!debug) MapDoc.drop
+    success
   }
 
   "Optional Example" in {
-
     checkMongoIsRunning
 
     val od1 = OptionalDoc.createRecord
@@ -554,10 +554,10 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
     }
 
     if (!debug) OptionalDoc.drop
+    success
   }
 
   "Strict Example" in {
-
     checkMongoIsRunning
 
     val sd1 = StrictDoc.createRecord.name("sd1")
@@ -572,5 +572,6 @@ object MongoRecordExamplesSpec extends Specification("MongoRecordExamples Specif
     sd2.save(true) must_== sd2
 
     if (!debug) StrictDoc.drop
+    success
   }
 }

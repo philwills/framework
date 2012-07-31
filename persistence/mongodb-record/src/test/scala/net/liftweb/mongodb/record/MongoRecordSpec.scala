@@ -22,7 +22,6 @@ import java.util.{Date, Locale, UUID}
 import java.util.regex.Pattern
 
 import org.bson.types.ObjectId
-import org.specs.Specification
 
 import common._
 import http.js.JsExp
@@ -37,139 +36,12 @@ import http.{S, LiftSession}
 /**
  * Systems under specification for MongoRecord.
  */
-object MongoRecordSpec extends Specification("MongoRecord Specification") with MongoTestKit {
+class MongoRecordSpec extends MongoTestSpecification {
+  args(sequential=true)
   import fixtures._
   val session = new LiftSession("hello", "", Empty)
 
-  "MongoRecord field introspection" should {
-    checkMongoIsRunning
-
-    val rec = MongoFieldTypeTestRecord.createRecord
-    val allExpectedFieldNames: List[String] = "_id" :: "mandatoryMongoCaseClassField" ::
-      (for {
-        typeName <- "Date JsonObject ObjectId Pattern UUID".split(" ")
-        flavor <- "mandatory legacyOptional".split(" ")
-      } yield flavor + typeName + "Field").toList
-
-    "introspect only the expected fields" in {
-      rec.fields().map(_.name).filterNot(allExpectedFieldNames.contains(_)) must_== Nil
-    }
-
-    "correctly look up fields by name" in {
-      for (name <- allExpectedFieldNames) {
-        rec.fieldByName(name) must verify(_.isDefined)
-      }
-    }
-
-    "not look up fields by bogus names" in {
-      for (name <- allExpectedFieldNames) {
-        rec.fieldByName("x" + name + "y") must not(verify(_.isDefined))
-      }
-    }
-  }
-
-  "MongoRecord lifecycle callbacks" should {
-    checkMongoIsRunning
-
-    def testOneHarness(scope: String, f: LifecycleTestRecord => HarnessedLifecycleCallbacks): Unit = {
-      ("be called before validation when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).beforeValidationHarness = () => triggered = true
-        rec.foreachCallback(_.beforeValidation)
-        triggered must_== true
-      }
-
-      ("be called after validation when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).afterValidationHarness = () => triggered = true
-        rec.foreachCallback(_.afterValidation)
-        triggered must_== true
-      }
-
-      ("be called around validate when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggeredBefore = false
-        var triggeredAfter = false
-        f(rec).beforeValidationHarness = () => triggeredBefore = true
-        f(rec).afterValidationHarness = () => triggeredAfter = true
-        rec.validate must_== Nil
-        triggeredBefore must_== true
-        triggeredAfter must_== true
-      }
-
-      ("be called before save when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).beforeSaveHarness = () => triggered = true
-        rec.foreachCallback(_.beforeSave)
-        triggered must_== true
-      }
-
-      ("be called before create when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).beforeCreateHarness = () => triggered = true
-        rec.foreachCallback(_.beforeCreate)
-        triggered must_== true
-      }
-
-      ("be called before update when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).beforeUpdateHarness = () => triggered = true
-        rec.foreachCallback(_.beforeUpdate)
-        triggered must_== true
-      }
-
-      ("be called after save when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).afterSaveHarness = () => triggered = true
-        rec.foreachCallback(_.afterSave)
-        triggered must_== true
-      }
-
-      ("be called after create when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).afterCreateHarness = () => triggered = true
-        rec.foreachCallback(_.afterCreate)
-        triggered must_== true
-      }
-
-      ("be called after update when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).afterUpdateHarness = () => triggered = true
-        rec.foreachCallback(_.afterUpdate)
-        triggered must_== true
-      }
-
-      ("be called before delete when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).beforeDeleteHarness = () => triggered = true
-        rec.foreachCallback(_.beforeDelete)
-        triggered must_== true
-      }
-
-      ("be called after delete when specified at " + scope) in {
-        val rec = LifecycleTestRecord.createRecord
-        var triggered = false
-        f(rec).afterDeleteHarness = () => triggered = true
-        rec.foreachCallback(_.afterDelete)
-        triggered must_== true
-      }
-    }
-
-    testOneHarness("the field level", rec => rec.stringFieldWithCallbacks: HarnessedLifecycleCallbacks)
-  }
-
   "MongoRecord" should {
-    checkMongoIsRunning
-
     val binData: Array[Byte] = Array(18, 19, 20)
 
     val fttr = FieldTypeTestRecord.createRecord
@@ -334,7 +206,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         fttr.save
 
         val fttrFromDb = FieldTypeTestRecord.find(fttr.id.value)
-        fttrFromDb must notBeEmpty
+        fttrFromDb.isDefined must beTrue
         fttrFromDb foreach { tr =>
           tr mustEqual fttr
         }
@@ -342,11 +214,12 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         bftr.save
 
         val bftrFromDb = BinaryFieldTestRecord.find(bftr.id.value)
-        bftrFromDb must notBeEmpty
+        bftrFromDb.isDefined must beTrue
         bftrFromDb foreach { tr =>
           tr mustEqual bftr
         }
       }
+      success
     }
 
     "delete record properly" in {
@@ -354,10 +227,11 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
 
       S.initIfUninitted(session) {
         fttr.save
-        FieldTypeTestRecord.find(fttr.id.value) must notBeEmpty
+        FieldTypeTestRecord.find(fttr.id.value).isDefined must beTrue
         fttr.delete_!
-        FieldTypeTestRecord.find(fttr.id.value) must beEmpty
+        FieldTypeTestRecord.find(fttr.id.value).isDefined must beFalse
       }
+      success
     }
 
     "save and retrieve Mongo type fields with set values" in {
@@ -366,7 +240,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mfttr.save
 
       val mfttrFromDb = MongoFieldTypeTestRecord.find(mfttr.id.value)
-      mfttrFromDb must notBeEmpty
+      mfttrFromDb.isDefined must beTrue
       mfttrFromDb foreach { tr =>
         tr mustEqual mfttr
       }
@@ -374,7 +248,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       ltr.save
 
       val ltrFromDb = ListTestRecord.find(ltr.id.value)
-      ltrFromDb must notBeEmpty
+      ltrFromDb.isDefined must beTrue
       ltrFromDb foreach { tr =>
         tr mustEqual ltr
       }
@@ -382,7 +256,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mtr.save
 
       val mtrFromDb = MapTestRecord.find(mtr.id.value)
-      mtrFromDb must notBeEmpty
+      mtrFromDb.isDefined must beTrue
       mtrFromDb foreach { tr =>
         tr mustEqual mtr
       }
@@ -390,10 +264,11 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       srtr.save
 
       val srtrFromDb = SubRecordTestRecord.find(srtr.id.value)
-      srtrFromDb must notBeEmpty
+      srtrFromDb.isDefined must beTrue
       srtrFromDb foreach { tr =>
         tr mustEqual srtr
       }
+      success
     }
 
     "save and retrieve Mongo type fields with default values" in {
@@ -403,7 +278,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mfttrDef.save
 
       val mfttrFromDb = MongoFieldTypeTestRecord.find(mfttrDef.id.value)
-      mfttrFromDb must notBeEmpty
+      mfttrFromDb.isDefined must beTrue
       mfttrFromDb foreach { tr =>
         tr mustEqual mfttrDef
       }
@@ -412,7 +287,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       ltrDef.save
 
       val ltrFromDb = ListTestRecord.find(ltrDef.id.value)
-      ltrFromDb must notBeEmpty
+      ltrFromDb.isDefined must beTrue
       ltrFromDb foreach { tr =>
         tr mustEqual ltrDef
       }
@@ -421,7 +296,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mtrDef.save
 
       val mtrFromDb = MapTestRecord.find(mtrDef.id.value)
-      mtrFromDb must notBeEmpty
+      mtrFromDb.isDefined must beTrue
       mtrFromDb foreach { tr =>
         tr mustEqual mtrDef
       }
@@ -430,10 +305,11 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       srtrDef.save
 
       val srtrFromDb = SubRecordTestRecord.find(srtrDef.id.value)
-      srtrFromDb must notBeEmpty
+      srtrFromDb.isDefined must beTrue
       srtrFromDb foreach { tr =>
         tr mustEqual srtrDef
       }
+      success
     }
 
     "convert Mongo type fields to JValue" in {
@@ -457,22 +333,23 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       checkMongoIsRunning
 
       val mfftrFromJson = MongoFieldTypeTestRecord.fromJsonString(compact(render(mfttrJson)))
-      mfftrFromJson must notBeEmpty
+      mfftrFromJson.isDefined must beTrue
       mfftrFromJson foreach { tr =>
         tr mustEqual mfttr
       }
 
       val ltrFromJson = ListTestRecord.fromJsonString(compact(render(ltrJson)))
-      ltrFromJson must notBeEmpty
+      ltrFromJson.isDefined must beTrue
       ltrFromJson foreach { tr =>
         tr mustEqual ltr
       }
 
       val mtrFromJson = MapTestRecord.fromJsonString(compact(render(mtrJson)))
-      mtrFromJson must notBeEmpty
+      mtrFromJson.isDefined must beTrue
       mtrFromJson foreach { tr =>
         tr mustEqual mtr
       }
+      success
     }
 
     "handle null" in {
@@ -486,8 +363,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
 
       val ntrFromDb = NullTestRecord.find(ntr.id.value)
 
-      ntrFromDb must notBeEmpty
-
+      ntrFromDb.isDefined must beTrue
       ntrFromDb foreach { n =>
         // goes in as
         ntr.nullstring.valueBox.map(_ must beNull)
@@ -504,6 +380,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         n.jsonobjlist.value(1).id must_== ntr.jsonobjlist.value(1).id
         n.jsonobjlist.value(1).name must_== ntr.jsonobjlist.value(1).name
       }
+      success
     }
 
     "handle Box using JsonBoxSerializer" in {
@@ -520,8 +397,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
 
       val btrFromDb = BoxTestRecord.find(btr.id.value)
 
-      btrFromDb must notBeEmpty
-
+      btrFromDb.isDefined must beTrue
       btrFromDb foreach { b =>
         b.jsonobjlist.value.size must_== 2
         btr.jsonobjlist.value.size must_== 2
@@ -530,6 +406,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         sortedList(0).boxFull must_== Full("Full String1")
         sortedList(0).boxFail must_== Failure("Failure1")
       }
+      success
     }
 
     "retrieve MongoRef objects properly" in {
@@ -590,6 +467,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         rftr.mandatoryObjectIdRefListField.objs mustEqual objList
         rftr.mandatoryObjectIdRefListField.cached_? mustEqual true
       }
+      success
     }
 
     "use defaultValue when field is not present in the database" in {
@@ -605,8 +483,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
 
         val recFromDb = FieldTypeTestRecord.find(missingFieldDocId)
 
-        recFromDb must notBeEmpty
-
+        recFromDb.isDefined must beTrue
         recFromDb foreach { r =>
           r.mandatoryBooleanField.is must_== false
           r.legacyOptionalBooleanField
@@ -649,6 +526,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
           r.optionalTimeZoneField.is must beEmpty
         }
       }
+      success
     }
 
     "reset dirty flags on save" in {
@@ -702,7 +580,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         fttr.dirtyFields.length must_== 0
 
         val fromDb = FieldTypeTestRecord.find(fttr.id.is)
-        fromDb must notBeEmpty
+        fromDb.isDefined must beTrue
         fromDb foreach { rec =>
           rec must_== fttr
           rec.dirtyFields.length must_== 0
@@ -722,12 +600,13 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
         fttr2.dirtyFields.length must_== 0
 
         val fromDb2 = FieldTypeTestRecord.find(fttr2.id.is)
-        fromDb2 must notBeEmpty
+        fromDb2.isDefined must beTrue
         fromDb2 foreach { rec =>
           rec must_== fttr2
           rec.dirtyFields.length must_== 0
         }
       }
+      success
     }
 
     "update dirty fields for a MongoFieldTypeTestRecord" in {
@@ -766,7 +645,7 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mfttr.dirtyFields.length must_== 0
 
       val fromDb = MongoFieldTypeTestRecord.find(mfttr.id.is)
-      fromDb must notBeEmpty
+      fromDb.isDefined must beTrue
       fromDb foreach { rec =>
         rec must_== mfttr
         rec.dirtyFields.length must_== 0
@@ -785,11 +664,12 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mfttr2.dirtyFields.length must_== 0
 
       val fromDb2 = MongoFieldTypeTestRecord.find(mfttr2.id.is)
-      fromDb2 must notBeEmpty
+      fromDb2.isDefined must beTrue
       fromDb2 foreach { rec =>
         rec must_== mfttr2
         rec.dirtyFields.length must_== 0
       }
+      success
     }
 
     "update dirty fields for a ListTestRecord" in {
@@ -814,11 +694,12 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       ltr.dirtyFields.length must_== 0
 
       val fromDb = ListTestRecord.find(ltr.id.is)
-      fromDb must notBeEmpty
+      fromDb.isDefined must beTrue
       fromDb foreach { rec =>
         rec must_== ltr
         rec.dirtyFields.length must_== 0
       }
+      success
     }
 
     "update dirty fields for a MapTestRecord" in {
@@ -837,11 +718,12 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       mtr.dirtyFields.length must_== 0
 
       val fromDb = MapTestRecord.find(mtr.id.is)
-      fromDb must notBeEmpty
+      fromDb.isDefined must beTrue
       fromDb foreach { rec =>
         rec must_== mtr
         rec.dirtyFields.length must_== 0
       }
+      success
     }
 
     "update dirty fields for a SubRecordTestRecord" in {
@@ -873,11 +755,12 @@ object MongoRecordSpec extends Specification("MongoRecord Specification") with M
       srtr.dirtyFields.length must_== 0
 
       val fromDb = SubRecordTestRecord.find(srtr.id.is)
-      fromDb must notBeEmpty
+      fromDb.isDefined must beTrue
       fromDb foreach { rec =>
         rec must_== srtr
         rec.dirtyFields.length must_== 0
       }
+      success
     }
   }
 }

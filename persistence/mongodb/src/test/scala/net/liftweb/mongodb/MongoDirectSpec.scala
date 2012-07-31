@@ -22,15 +22,12 @@ import java.util.regex.Pattern
 
 import com.mongodb.{BasicDBObject, BasicDBObjectBuilder}
 
-import org.specs2.mutable.Specification
-
 import json.DefaultFormats
-
 
 /**
  * System under specification for MongoDirect.
  */
-class MongoDirectSpec extends Specification with MongoTestKit {
+class MongoDirectSpec extends MongoTestSpecification {
   args(sequential=true)
 
   def date(s: String) = DefaultFormats.dateFormat.parse(s).get
