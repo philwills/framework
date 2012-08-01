@@ -40,14 +40,14 @@ import scala.xml.{NodeSeq, Elem, Node, Text}
  */
 class FieldSpec extends Specification {
   args(sequential=true)
-  val session = new LiftSession("", randomString(20), Empty)
-  //def around[T <% Result](t: => T) = S.initIfUninitted(session) { t }
 
-  def passBasicTests[A](example: A, mandatory: MandatoryTypedField[A], legacyOptional: MandatoryTypedField[A], optional: OptionalTypedField[A])(implicit m: scala.reflect.Manifest[A]): Unit = {
+  val session = new LiftSession("", randomString(20), Empty)
+
+  def passBasicTests[A](example: A, mandatory: MandatoryTypedField[A], legacyOptional: MandatoryTypedField[A], optional: OptionalTypedField[A])(implicit m: scala.reflect.Manifest[A]): Result = {
     val canCheckDefaultValues =
       !mandatory.defaultValue.isInstanceOf[Calendar] // don't try to use the default value of date/time typed fields, because it changes from moment to moment!
 
-    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]): Unit = {
+    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]): Result = {
   		if (canCheckDefaultValues) {
   			"which have the correct initial value" in {
   				in.get must_== in.defaultValue
@@ -70,9 +70,10 @@ class FieldSpec extends Specification {
           in.get must_== in.defaultValue
         }
       }
+      success
     }
 
-    def commonBehaviorsForAllFlavors(in: TypedField[A]): Unit = {
+    def commonBehaviorsForAllFlavors(in: TypedField[A]): Result = {
       if (canCheckDefaultValues) {
         "which have the correct initial boxed value" in {
           S.initIfUninitted(session) {
@@ -128,6 +129,7 @@ class FieldSpec extends Specification {
 	        in.dirty_? must_== true
 	      }
       }
+      success
     }
 
     "support mandatory fields" in {
@@ -145,8 +147,7 @@ class FieldSpec extends Specification {
       "which correctly fail to be set to Empty" in {
         mandatory.valueBox.isDefined must beTrue
         mandatory.setBox(Empty)
-        // TODO: fix this
-        //mandatory.valueBox must beLike { case Failure(s, _, _) if s == mandatory.notOptionalErrorMessage => true }
+        mandatory.valueBox must beLike { case Failure(s, _, _) if s == mandatory.notOptionalErrorMessage => ok }
         success
       }
     }
@@ -210,9 +211,10 @@ class FieldSpec extends Specification {
         optional.valueBox must_== Empty
       }
     }
+    success
   }
 
-  def passConversionTests[A](example: A, mandatory: MandatoryTypedField[A], jsexp: JsExp, jvalue: JValue, formPattern: Box[NodeSeq]): Unit = {
+  def passConversionTests[A](example: A, mandatory: MandatoryTypedField[A], jsexp: JsExp, jvalue: JValue, formPattern: Box[NodeSeq]): Result = {
 
     "convert to JsExp" in {
       mandatory.set(example)
@@ -233,7 +235,7 @@ class FieldSpec extends Specification {
       }
     }
 
-    /*formPattern foreach { fp =>
+    formPattern foreach { fp =>
       "convert to form XML" in {
         mandatory.set(example)
         val session = new LiftSession("", randomString(20), Empty)
@@ -250,7 +252,8 @@ class FieldSpec extends Specification {
           }
         }
       }
-    }*/
+    }
+    success
   }
 
     /* Since Array[Byte]s cannot be compared, commenting out this test for now
@@ -294,20 +297,21 @@ class FieldSpec extends Specification {
     }
   }
 
-  /*"CountryField" should {
+  "CountryField" should {
     S.initIfUninitted(session) {
       val rec = FieldTypeTestRecord.createRecord
       val country = Countries.Canada
+      val countryStr = country.toString
+      val countryId = country.id
       passBasicTests(country, rec.mandatoryCountryField, rec.legacyOptionalCountryField, rec.optionalCountryField)
       passConversionTests(
         country,
         rec.mandatoryCountryField,
-        Str(country.toString),
-        JInt(country.id),
-        Full(<select tabindex="1" name=".*" id="mandatoryCountryField_id"><option value=".*" selected="selected">{country.toString}</option></select>)
+        Str(countryStr),
+        JInt(countryId),
+        Full(<select tabindex="1" name=".*" id="mandatoryCountryField_id"><option value=".*" selected="selected">{countryStr}</option></select>)
       )
     }
-    success
   }
 
   "DateTimeField" should {
@@ -324,7 +328,6 @@ class FieldSpec extends Specification {
         Full(<input name=".*" type="text" tabindex="1" value={dtStr} id="mandatoryDateTimeField_id"></input>)
       )
     }
-    success
   }
 
   "DecimalField" should {
@@ -338,7 +341,6 @@ class FieldSpec extends Specification {
       JString(bd.toString),
       Full(<input name=".*" type="text" tabindex="1" value={bd.toString} id="mandatoryDecimalField_id"></input>)
     )
-    success
   }
 
   "DoubleField" should {
@@ -352,7 +354,6 @@ class FieldSpec extends Specification {
       JDouble(d),
       Full(<input name=".*" type="text" tabindex="1" value={d.toString} id="mandatoryDoubleField_id"></input>)
     )
-    success
   }
 
   "EmailField" should {
@@ -366,7 +367,6 @@ class FieldSpec extends Specification {
       JString(email),
       Full(<input name=".*" type="text" maxlength="100" tabindex="1" value={email} id="mandatoryEmailField_id"></input>)
     )
-    success
   }
 
   "EnumField" should {
@@ -380,7 +380,6 @@ class FieldSpec extends Specification {
       JInt(ev.id),
       Full(<select tabindex="1" name=".*" id="mandatoryEnumField_id"><option value=".*" selected="selected">{ev.toString}</option></select>)
     )
-    success
   }
 
   "IntField" should {
@@ -394,7 +393,6 @@ class FieldSpec extends Specification {
       JInt(num),
       Full(<input name=".*" type="text" tabindex="1" value={num.toString} id="mandatoryIntField_id"></input>)
     )
-    success
   }
 
   "LocaleField" should {
@@ -404,7 +402,6 @@ class FieldSpec extends Specification {
       case _ => "en_US"
     }
     passBasicTests(example, rec.mandatoryLocaleField, rec.legacyOptionalLocaleField, rec.optionalLocaleField)
-    success
   }
 
   "LongField" should {
@@ -418,28 +415,31 @@ class FieldSpec extends Specification {
       JInt(lng),
       Full(<input name=".*" type="text" tabindex="1" value={lng.toString} id="mandatoryLongField_id"></input>)
     )
-    success
   }
 
   "PasswordField" should {
     "require a nonempty password" in {
-      val rec = PasswordTestRecord.createRecord.password("")
+      S.initIfUninitted(session) {
+        val rec = PasswordTestRecord.createRecord.password("")
 
-      rec.validate must_== (
-        FieldError(rec.password, Text(S.?("password.must.be.set"))) ::
-        Nil
-      )
+        rec.validate must_== (
+          FieldError(rec.password, Text(S.?("password.must.be.set"))) ::
+          Nil
+        )
+      }
     }
 
     "correctly validate the unencrypted value" in {
-      val rec = PasswordTestRecord.createRecord.password("testvalue")
-      rec.validate must_== Nil
+      S.initIfUninitted(session) {
+        val rec = PasswordTestRecord.createRecord.password("testvalue")
+        rec.validate must_== Nil
 
-      rec.password("1234")
-      rec.validate must_== (
-        FieldError(rec.password, Text(S.?("password.too.short"))) ::
-        Nil
-      )
+        rec.password("1234")
+        rec.validate must_== (
+          FieldError(rec.password, Text(S.?("password.too.short"))) ::
+          Nil
+        )
+      }
     }
 
     "match with encrypted value" in {
@@ -463,7 +463,6 @@ class FieldSpec extends Specification {
       JString(zip),
       Full(<input name=".*" type="text" maxlength="32" tabindex="1" value={zip} id="mandatoryPostalCodeField_id"></input>)
     )
-    success
   }
 
   "StringField" should {
@@ -564,7 +563,6 @@ class FieldSpec extends Specification {
       JString(txt),
       Full(<textarea name=".*" rows="8" tabindex="1" cols="20" id="mandatoryTextareaField_id">{txt}</textarea>)
     )
-    success
   }
 
   "TimeZoneField" should {
@@ -581,7 +579,6 @@ class FieldSpec extends Specification {
       JString(example),
       Full(<select tabindex="1" name=".*" id="mandatoryTimeZoneField_id"><option value=".*" selected="selected">{example}</option></select>)
     )
-    success
-  }*/
+  }
 }
 
