@@ -17,7 +17,7 @@
 package net.liftweb
 package mapper
 
-
+/*
 /**
  * Add this trait to a Mapper for managed one-to-many support
  * For example: class Contact extends LongKeyedMapper[Contact] with OneToMany[Long, Contact] { ... }
@@ -276,3 +276,4 @@ trait OneToMany[K,T<:KeyedMapper[K, T]] extends KeyedMapper[K,T] { this: T =>
   }
 }
 
+*/

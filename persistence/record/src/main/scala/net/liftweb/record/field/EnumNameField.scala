@@ -40,7 +40,7 @@ trait EnumNameTypedField[EnumType <: Enumeration] extends TypedField[EnumType#Va
 
   def setFromString(s: String): Box[EnumType#Value] = s match {
     case "" if optional_? => setBox(Empty)
-    case _                => setBox(enum.values.find(_.toString == s))
+    case _                => setBox(enum.values.toList.find(_.toString == s))
   }
 
   /** Label for the selection item representing Empty, show when this field is optional. Defaults to the empty string. */
@@ -51,7 +51,7 @@ trait EnumNameTypedField[EnumType <: Enumeration] extends TypedField[EnumType#Va
    * is the value of the field and the second string is the Text name of the Value.
    */
   def buildDisplayList: List[(Box[EnumType#Value], String)] = {
-    val options = enum.values.map(a => (Full(a), a.toString)).toList
+    val options = enum.values.toList.map(a => (Full(a), a.toString)).toList
     if (optional_?) (Empty, emptyOptionLabel)::options else options
   }
 

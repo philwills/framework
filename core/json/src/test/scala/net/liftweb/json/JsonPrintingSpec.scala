@@ -23,6 +23,7 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.forAll
 
 
+/*
 /**
  * System under specification for JSON Printing.
  */
@@ -40,3 +41,4 @@ object JsonPrintingSpec extends Specification  with JValueGen with ScalaCheck {
 
   implicit def arbDoc: Arbitrary[Document] = Arbitrary(genJValue.map(render(_)))
 }
+*/

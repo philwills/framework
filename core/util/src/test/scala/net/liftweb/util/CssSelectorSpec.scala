@@ -37,8 +37,7 @@ object CssSelectorSpec extends Specification   {
     }
 
     "select an id" in {
-      CssSelectorParser.parse("#foo").openOrThrowException("If the box is empty, we want a failure") must_== 
-        IdSelector("foo", Empty)
+      CssSelectorParser.parse("#foo") must_==  Full(IdSelector("foo", Empty))
     }
 
     "a selector with cruft at the end must fail" in {
@@ -50,8 +49,7 @@ object CssSelectorSpec extends Specification   {
     }
 
     ":button must  parse" in {
-      CssSelectorParser.parse(":button").openOrThrowException("If the box is empty, we want a failure") must_== 
-      AttrSelector("type", "button", Empty)
+      CssSelectorParser.parse(":button") must_== Full(AttrSelector("type", "button", Empty))
     }
 
 

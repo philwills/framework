@@ -17,7 +17,7 @@
 package net.liftweb
 package mapper
 
-import scala.collection.mutable._
+import scala.collection.mutable.ListBuffer
 import java.lang.reflect.Method
 import scala.xml._
 import java.util.Date

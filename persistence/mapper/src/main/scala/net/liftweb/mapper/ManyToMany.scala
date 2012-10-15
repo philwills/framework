@@ -20,6 +20,7 @@ package mapper
 import net.liftweb.util._
 import net.liftweb.common._
 
+/*
 /**
  * Add this trait to a Mapper to add support for many-to-many relationships
  * @author nafg
@@ -230,3 +231,4 @@ trait ManyToMany extends BaseKeyedMapper {
   }
 }
 
+*/

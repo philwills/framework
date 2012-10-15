@@ -52,7 +52,7 @@ object XmlBugs extends Specification {
         <n id="10" x="abc" />
         <n id="11" x="bcd" />
       </root>
-    val expected = """{"root":{"n":[{"x":"abc","id":"10"},{"x":"bcd","id":"11"}]}}"""
+    val expected = """{"root":{"n":[{"id":"10","x":"abc"},{"id":"11","x":"bcd"}]}}"""
     Printer.compact(render(toJson(xml))) mustEqual expected
   }
 

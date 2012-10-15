@@ -1788,7 +1788,7 @@ trait KeyedMetaMapper[Type, A<:KeyedMapper[Type, A]] extends MetaMapper[A] with 
     JE.JsObj(first :: ("$lift_class", JE.Str(dbTableName)) :: mappedFieldList.
              map(f => this.??(f.method, actual)).
              filter(f => !f.dbPrimaryKey_? && f.renderJs_?).flatMap{
-        case fk:  Q =>
+        case fk:  MappedForeignKey[AnyBound, A, _] with MappedField[AnyBound, A] =>
           val key = f.obscure(fk.dbKeyToTable, fk.is)
           List((fk.name, JE.Str(key)),
                (fk.name+"_obj",

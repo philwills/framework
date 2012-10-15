@@ -45,7 +45,7 @@ trait StringTypedField extends TypedField[String] with StringValidators {
     case _                => setBox(Full(s))
   }
 
-  private def elem = S.fmapFunc(SFuncHolder(this.setFromAny(_))) {
+  private def elem: Elem = S.fmapFunc(SFuncHolder(this.setFromAny(_))) {
     funcName =>
     <input type="text" maxlength={maxLength.toString}
       name={funcName}
@@ -98,8 +98,7 @@ abstract class UniqueIdField[OwnerType <: Record[OwnerType]](rec: OwnerType, ove
 }
 
 
-class OptionalStringField[OwnerType <: Record[OwnerType]](rec: OwnerType, val maxLength: Int)
-  extends Field[String, OwnerType] with OptionalTypedField[String] with StringTypedField {
+class OptionalStringField[OwnerType <: Record[OwnerType]](rec: OwnerType, val maxLength: Int) extends Field[String, OwnerType] with OptionalTypedField[String] with StringTypedField {
 
   def this(rec: OwnerType, maxLength: Int, value: Box[String]) = {
     this(rec, maxLength)

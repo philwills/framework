@@ -40,7 +40,7 @@ trait NumericTypedField[MyType] extends TypedField[MyType] {
       case _ => genericSetFromAny(in)
     }
 
-  private def elem = S.fmapFunc((s: List[String]) => setFromAny(s)) {
+  private def elem: Elem = S.fmapFunc((s: List[String]) => setFromAny(s)) {
     funcName => <input type="text" name={funcName} value={valueBox.map(_.toString) openOr ""} tabindex={tabIndex toString}/>
   }
 

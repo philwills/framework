@@ -57,7 +57,7 @@ object BuildDef extends Build {
     coreProject("json-scalaz")
         .dependsOn(json)
         .settings(description := "JSON Library based on Scalaz",
-                  libraryDependencies <+= scalaVersion(scalaz))
+                  libraryDependencies ++= Seq(scalaz))
 
   lazy val json_ext =
     coreProject("json-ext")
@@ -106,7 +106,7 @@ object BuildDef extends Build {
   // Persistence Projects
   // --------------------
   lazy val persistence: Seq[ProjectReference] =
-    Seq(db, proto, jpa, mapper, record, couchdb, squeryl_record, mongodb, mongodb_record, ldap)
+    Seq(db, proto, mapper, record, squeryl_record, mongodb, mongodb_record)
 
   lazy val db =
     persistenceProject("db")
@@ -116,11 +116,6 @@ object BuildDef extends Build {
   lazy val proto =
     persistenceProject("proto")
         .dependsOn(webkit)
-
-  lazy val jpa =
-    persistenceProject("jpa")
-        .dependsOn(webkit)
-        .settings(libraryDependencies ++= Seq(scalajpa, persistence_api))
 
   lazy val mapper =
     persistenceProject("mapper")
@@ -136,11 +131,7 @@ object BuildDef extends Build {
     persistenceProject("record")
         .dependsOn(proto)
 
-  lazy val couchdb =
-    persistenceProject("couchdb")
-        .dependsOn(record)
-        .settings(libraryDependencies += dispatch_http,
-                  parallelExecution in Test := false)
+
 
   lazy val squeryl_record =
     persistenceProject("squeryl-record")
@@ -161,13 +152,7 @@ object BuildDef extends Build {
         .dependsOn(record, mongodb)
         .settings(parallelExecution in Test := false)
 
-  lazy val ldap =
-    persistenceProject("ldap")
-        .dependsOn(mapper)
-        .settings(libraryDependencies += apacheds,
-                  initialize in Test <<= (crossTarget in Test) { ct =>
-                    System.setProperty("apacheds.working.dir", (ct / "apacheds").absolutePath)
-                  })
+
 
   def coreProject = liftProject("core") _
   def webProject = liftProject("web") _

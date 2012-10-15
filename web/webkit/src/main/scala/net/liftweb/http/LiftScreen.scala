@@ -357,12 +357,12 @@ trait AbstractScreen extends Factory {
    */
   protected def builder[T](name: => String, default: => T, stuff: FilterOrValidate[T]*)(implicit man: Manifest[T]): FieldBuilder[T] =
     new FieldBuilder[T](name, default, man, Empty,
-      stuff.toList.collect {
-        case AVal(v) => v
-      },
-      stuff.toList.collect {
+      ((stuff: Seq[FilterOrValidate[T]]).collect {
+        case AVal(v: (T => List[FieldError])) => v
+      }).toList,
+      (stuff.collect {
         case AFilter(v) => v
-      },
+      }).toList,
       stuff)
 
   protected object FilterOrValidate {
@@ -609,7 +609,7 @@ trait AbstractScreen extends Factory {
    */
   protected def field[T](name: => String, default: => T, stuff: FilterOrValidate[T]*)(implicit man: Manifest[T]): Field {type ValueType = T} =
     new FieldBuilder[T](name, default, man, Empty, stuff.toList.flatMap {
-      case AVal(v) => List(v)
+      case AVal(v: (T => List[FieldError])) => List(v)
       case _ => Nil
     }, stuff.toList.flatMap {
       case AFilter(v) => List(v)
@@ -754,7 +754,7 @@ trait AbstractScreen extends Factory {
             case _ => Nil
           }.toList
           override val validations = stuff.flatMap {
-            case AVal(v) => List(v)
+            case AVal(v: (T => List[FieldError])) => List(v)
             case _ => Nil
           }.toList
 
@@ -791,7 +791,7 @@ trait AbstractScreen extends Factory {
             case _ => Nil
           }.toList
           override val validations = stuff.flatMap {
-            case AVal(v) => List(v)
+            case AVal(v: (T => List[FieldError])) => List(v)
             case _ => Nil
           }.toList
 

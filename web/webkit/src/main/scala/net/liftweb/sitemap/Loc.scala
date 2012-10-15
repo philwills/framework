@@ -473,8 +473,13 @@ trait ConvertableLoc[T] {
    * the Loc in createLink
    */
   def convert(str: String): Box[T]
+
+  def makeItALoc: Loc[T] = this
 }
 
+object ConvertableLoc {
+  implicit def toLoc[T](cl: ConvertableLoc[T]): Loc[T] = cl.makeItALoc
+}
 
 /**
  * The Loc companion object, complete with a nice constructor

@@ -177,7 +177,7 @@ object ClassHelpersSpec extends Specification  {
       createInvoker("length", "").open_!.apply().get must_== 0
     }
     "The invoker function will throw the cause exception if the method can't be called" in {
-      createInvoker("get", "").open_!.apply must throwA[Exception]
+      createInvoker("get", "").isEmpty must_== true
     }
   }
 

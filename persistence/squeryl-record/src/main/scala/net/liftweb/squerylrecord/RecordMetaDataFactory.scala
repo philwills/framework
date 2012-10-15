@@ -34,12 +34,16 @@ class RecordMetaDataFactory extends FieldMetaDataFactory {
 
   /** Given a model object class (Record class) and field name, return the BaseField from the meta record */
   private def findMetaField(clasz: Class[_], name: String): BaseField = {
-    def fieldFrom(mr: MetaRecord[_]): BaseField =
-      mr.asInstanceOf[Record[_]].fieldByName(name) match {
+    def fieldFrom(mr: MetaRecord[_]): BaseField = {
+
+      val rec: Record[_] = mr.asInstanceOf[Record[_]]
+      val theField: Box[BaseField] = rec.fieldByName(name)
+      theField match {
         case Full(f: BaseField) => f
         case Full(_) => org.squeryl.internals.Utils.throwError("field " + name + " in Record metadata for " + clasz + " is not a TypedField")
         case _ => org.squeryl.internals.Utils.throwError("failed to find field " + name + " in Record metadata for " + clasz)
       }
+    }
 
     metaRecordsByClass get clasz match {
       case Some(mr) => fieldFrom(mr)

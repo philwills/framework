@@ -63,8 +63,7 @@ class LocaleField[OwnerType <: Record[OwnerType]](rec: OwnerType)
 
 }
 
-class OptionalLocaleField[OwnerType <: Record[OwnerType]](rec: OwnerType)
-  extends OptionalStringField(rec, 16) with LocaleTypedField {
+class OptionalLocaleField[OwnerType <: Record[OwnerType]](rec: OwnerType) extends OptionalStringField(rec, 16) with LocaleTypedField {
 
   /** Label for the selection item representing Empty, show when this field is optional. Defaults to the empty string. */
   def emptyOptionLabel: String = ""

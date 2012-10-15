@@ -167,6 +167,10 @@ object CssSelectorParser extends PackratParsers with ImplicitConversions {
            colonMatch)
   }
 
+  private lazy val anyChar: Parser[Char] = acceptIf((c: Char) => true)(c => "Foo")
+
+  private lazy val checkEOF: Parser[Unit] = not(anyChar)
+
   private def fixAll(all: List[CssSelector], sn: Option[SubNode]): CssSelector = {
     (all, sn) match {
       // case (Nil, Some())
@@ -179,7 +183,7 @@ object CssSelectorParser extends PackratParsers with ImplicitConversions {
 
   private lazy val topParser: Parser[CssSelector] =
     phrase(rep1((_idMatch | _nameMatch | _classMatch | _attrMatch | _elemMatch |
-      _colonMatch | _starMatch) <~ (rep1(' ') | 26.toChar)) ~ opt(subNode)) ^^ {
+      _colonMatch | _starMatch) <~ (rep1(' ') | checkEOF)) ~ opt(subNode)) ^^ {
       case (one :: Nil) ~ sn => fixAll(List(one), sn)
     case all ~ None if all.takeRight(1).head == StarSelector(Empty) =>
       fixAll(all.dropRight(1), Some(KidsSubNode()))
