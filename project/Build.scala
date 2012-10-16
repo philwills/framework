@@ -39,6 +39,7 @@ object BuildDef extends Build {
   lazy val common =
     coreProject("common")
       .settings(description := "Common Libraties and Utilities",
+                parallelExecution in Test := false,
                 libraryDependencies ++= Seq(slf4j_api, logback, slf4j_log4j12))
 
   lazy val actor =
@@ -57,12 +58,14 @@ object BuildDef extends Build {
     coreProject("json-scalaz")
         .dependsOn(json)
         .settings(description := "JSON Library based on Scalaz",
+                  parallelExecution in Test := false,
                   libraryDependencies ++= Seq(scalaz))
 
   lazy val json_ext =
     coreProject("json-ext")
         .dependsOn(common, json)
         .settings(description := "Extentions to JSON Library",
+                  parallelExecution in Test := false,
                   libraryDependencies ++= Seq(commons_codec, joda_time))
 
   lazy val util =
@@ -82,6 +85,7 @@ object BuildDef extends Build {
     webProject("testkit")
         .dependsOn(util)
         .settings(description := "Testkit for Webkit Library",
+                  parallelExecution in Test := false,
                   libraryDependencies ++= Seq(commons_httpclient, servlet_api))
 
   lazy val webkit =
@@ -100,7 +104,8 @@ object BuildDef extends Build {
   lazy val wizard =
     webProject("wizard")
         .dependsOn(webkit, db)
-        .settings(description := "Wizard Library")
+        .settings(parallelExecution in Test := false,
+                  description := "Wizard Library")
 
 
   // Persistence Projects
@@ -111,11 +116,12 @@ object BuildDef extends Build {
   lazy val db =
     persistenceProject("db")
         .dependsOn(util, webkit)
-        .settings(libraryDependencies += mockito_all)
+        .settings(parallelExecution in Test := false,
+                  libraryDependencies += mockito_all)
 
   lazy val proto =
     persistenceProject("proto")
-        .dependsOn(webkit)
+        .dependsOn(webkit).settings(parallelExecution in Test := false)
 
   lazy val mapper =
     persistenceProject("mapper")
@@ -136,7 +142,8 @@ object BuildDef extends Build {
   lazy val squeryl_record =
     persistenceProject("squeryl-record")
         .dependsOn(record, db)
-        .settings(libraryDependencies ++= Seq(h2, squeryl))
+        .settings(parallelExecution in Test := false,
+                  libraryDependencies ++= Seq(h2, squeryl))
 
   lazy val mongodb =
     persistenceProject("mongodb")

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package net.liftweb {
 package mapper {
 
@@ -76,3 +77,4 @@ object Phone extends Phone with LongKeyedMetaMapper[Phone]
 
 }
 }
+*/

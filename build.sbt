@@ -18,6 +18,7 @@ organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
 crossScalaVersions in ThisBuild    := Seq("2.10.0-M7")
 
+parallelExecution in Test := false
 
 libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck)
 

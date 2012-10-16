@@ -19,6 +19,7 @@ package mapper
 
 import org.specs2.mutable.Specification
 
+/*
 /**
  * Systems under specification for ManyToMany.
  */
@@ -142,4 +143,4 @@ class PersonCompany extends Mapper[PersonCompany] {
   override def toString = "PersonCompany(person.is=%s, person.obj=%s, company.is=%s, company.obj=%s)".format(person.is,person.obj,company.is,company.obj)
 }
 object PersonCompany extends PersonCompany with MetaMapper[PersonCompany]
-
+*/

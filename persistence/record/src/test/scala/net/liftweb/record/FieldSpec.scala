@@ -44,11 +44,11 @@ object FieldSpec extends Specification {
 
   lazy val session = new LiftSession("", randomString(20), Empty)
 
-  def passBasicTests[A](example: A, mandatory: MandatoryTypedField[A], legacyOptional: MandatoryTypedField[A], optional: OptionalTypedField[A])(implicit m: scala.reflect.Manifest[A]): Fragment = {
+  def passBasicTests[A](example: A, mandatory: MandatoryTypedField[A], legacyOptional: MandatoryTypedField[A], optional: OptionalTypedField[A])(implicit m: scala.reflect.Manifest[A]) = {
     val canCheckDefaultValues =
       !mandatory.defaultValue.isInstanceOf[Calendar] // don't try to use the default value of date/time typed fields, because it changes from moment to moment!
 
-    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]): Unit = {
+    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]) = {
       
 		if (canCheckDefaultValues) {
     			"which have the correct initial value" in S.initIfUninitted(session) {
@@ -76,7 +76,7 @@ object FieldSpec extends Specification {
         }
     }
 
-    def commonBehaviorsForAllFlavors(in: TypedField[A]): Unit = {
+    def commonBehaviorsForAllFlavors(in: TypedField[A]) = {
       if (canCheckDefaultValues) {
         "which have the correct initial boxed value" in {
           in match {
@@ -214,6 +214,7 @@ object FieldSpec extends Specification {
         optional.valueBox must_== Empty
       }
     }
+
   }
 
   def passConversionTests[A](example: A, mandatory: MandatoryTypedField[A], jsexp: JsExp, jvalue: JValue, formPattern: Box[NodeSeq]): Fragment = {

@@ -63,6 +63,7 @@ object JsonBoxSerializerSpec extends Specification  {
     val exn = SomeException("e1")
     val p = Person("joe", Full(12), ParamFailure("f", Full(exn), Empty, "param value"))
     val ser = swrite(p)
+
     read[Person](ser) mustEqual p
   }
 }
