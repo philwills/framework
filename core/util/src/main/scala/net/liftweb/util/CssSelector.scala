@@ -92,7 +92,7 @@ final case class SurroundKids() extends SubNode with WithKids {
         changed = true
         new Elem(e.prefix,
           e.label, e.attributes,
-          e.scope, e.child ++ original :_*)
+          e.scope, true, e.child ++ original :_*)
       case x => x
     }
 

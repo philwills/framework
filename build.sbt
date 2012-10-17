@@ -18,9 +18,15 @@ organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
 crossScalaVersions in ThisBuild    := Seq("2.10.0-M7")
 
-parallelExecution in Test := false
+parallelExecution in ThisBuild := false
 
-libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck)
+// fork := true
+
+// fork in ThisBuild := true
+
+// fork in test := true
+
+libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-M7"))
 
 // Settings for Sonatype compliance
 pomIncludeRepository in ThisBuild  := { _ => false }

@@ -53,8 +53,8 @@ trait ClassHelpers { self: ControlHelpers =>
   (for (
       place <- where.view;
       mod <- modifiers.view;
-      val fullName = place + "." + mod(name);
-      val ignore = List(classOf[ClassNotFoundException], classOf[ClassCastException], classOf[NoClassDefFoundError]);
+      fullName = place + "." + mod(name);
+      ignore = List(classOf[ClassNotFoundException], classOf[ClassCastException], classOf[NoClassDefFoundError]);
       klass <- tryo(ignore)(Class.forName(fullName).asSubclass(targetType).asInstanceOf[Class[C]])
     ) yield klass).headOption
 
@@ -198,7 +198,7 @@ trait ClassHelpers { self: ControlHelpers =>
    * Invoke a controller method (parameterless, public) on a class
    *
    * @param clz the class owning the method
-   * @param name name of the method to invoke
+   * @param meth name of the method to invoke
    *
    * @return the result of the method invocation or throws the root exception causing an error
    */
@@ -345,7 +345,7 @@ trait ClassHelpers { self: ControlHelpers =>
    * Create a function (the 'invoker') which will trigger any public, parameterless method
    * That function will throw the cause exception if the method can't be invoked
    *
-   * @param clz class whose method should be invoked
+   * @param name class whose method should be invoked
    * @param on instance whose method must be invoked
    *
    * @return Empty if instance is null or Full(invoker)

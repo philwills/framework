@@ -212,7 +212,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
 
           new Elem(elem.prefix,
             elem.label, newAttr,
-            elem.scope, elem.child: _*)
+            elem.scope, true, elem.child: _*)
         }
 
         case (elem, (bind, AttrAppendSubNode(attr))) => {
@@ -245,7 +245,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
 
             new Elem(elem.prefix,
               elem.label, newAttr,
-              elem.scope, elem.child: _*)
+              elem.scope, true, elem.child: _*)
 
           }
         }
@@ -281,7 +281,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
 
             new Elem(elem.prefix,
               elem.label, newAttr,
-              elem.scope, elem.child: _*)
+              elem.scope, true, elem.child: _*)
 
           }
         }
@@ -376,13 +376,13 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
         case Full(todo: WithKids) => {
           val calced = bind.calculate(realE.child)
           calced.length match {
-            case 0 => new Elem(realE.prefix, realE.label, realE.attributes, realE.scope)
+            case 0 => new Elem(realE.prefix, realE.label, realE.attributes, realE.scope, true)
             case 1 => new Elem(realE.prefix, realE.label,
-              realE.attributes, realE.scope,
+              realE.attributes, realE.scope, true,
               todo.transform(realE.child, calced.head): _*)
             case _ if id.isEmpty =>
               calced.map(kids => new Elem(realE.prefix, realE.label,
-                realE.attributes, realE.scope,
+                realE.attributes, realE.scope, true,
                 todo.transform(realE.child, kids): _*))
 
             case _ => {
@@ -390,11 +390,11 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
               calced.toList.zipWithIndex.map {
                 case (kids, 0) =>
                   new Elem(realE.prefix, realE.label,
-                    realE.attributes, realE.scope,
+                    realE.attributes, realE.scope, true,
                     todo.transform(realE.child, kids): _*)
                 case (kids, _) =>
                   new Elem(realE.prefix, realE.label,
-                    noId, realE.scope,
+                    noId, realE.scope, true,
                     todo.transform(realE.child, kids): _*)
               }
             }
@@ -411,7 +411,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
                 case Group(g) => g
                 case e: Elem => new Elem(e.prefix,
                   e.label, mergeAll(e.attributes, false, x == Full(DontMergeAttributes)),
-                  e.scope, e.child: _*)
+                  e.scope, true, e.child: _*)
                 case x => x
               }
             }
@@ -433,7 +433,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
                         id => ids.contains(id)
                       } getOrElse (false)
                       val newIds = targetId filter (_ => keepId) map (i => ids - i) getOrElse (ids)
-                      val newElem = new Elem(e.prefix, e.label, mergeAll(e.attributes, !keepId, x == Full(DontMergeAttributes)), e.scope, e.child: _*)
+                      val newElem = new Elem(e.prefix, e.label, mergeAll(e.attributes, !keepId, x == Full(DontMergeAttributes)), e.scope, true, e.child: _*)
                       (newIds, newElem :: result)
                     }
                     case x => (ids, x :: result)
@@ -568,7 +568,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
     } else {
       lb.toList.filterNot(_.selectThis_?) match {
         case Nil => new Elem(e.prefix, e.label,
-          e.attributes, e.scope, run(e.child, onlySel): _*)
+          e.attributes, e.scope, true, run(e.child, onlySel): _*)
         case csb =>
           // do attributes first, then the body
           csb.partition(_.attrSel_?) match {
@@ -576,7 +576,7 @@ private class SelectorMap(binds: List[CssBind]) extends Function1[NodeSeq, NodeS
             case (attrs, Nil) => {
               val elem = slurp.applyAttributeRules(attrs, e)
               new Elem(elem.prefix, elem.label,
-                elem.attributes, elem.scope, run(elem.child, onlySel): _*)
+                elem.attributes, elem.scope, true, run(elem.child, onlySel): _*)
             }
 
             case (attrs, rules) => {

@@ -41,6 +41,7 @@ class ActorSpec extends Specification {
   private def commonFeatures(actor: LiftActor) = {
 
     "allow setting and getting of a value" in {
+      Thread.sleep(2000)
       val a = actor
       a ! Set(33)
       a !? Get()

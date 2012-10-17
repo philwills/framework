@@ -23,6 +23,7 @@ import org.specs2.mutable.Specification
  * System under specification for ResourceServer.
  */
 /*
+FIXME -- Make consistent
 object ResourceServerSpec extends Specification  {
   "ResourceServer Specification".title
 
@@ -32,5 +33,4 @@ object ResourceServerSpec extends Specification  {
     }
   }
 }
-
 */
