@@ -48,8 +48,8 @@ object FieldSpec extends Specification {
     val canCheckDefaultValues =
       !mandatory.defaultValue.isInstanceOf[Calendar] // don't try to use the default value of date/time typed fields, because it changes from moment to moment!
 
-    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]) = {
-      
+    def commonBehaviorsForMandatory(in: MandatoryTypedField[A]): Unit = {
+
 		if (canCheckDefaultValues) {
     			"which have the correct initial value" in S.initIfUninitted(session) {
 				in.get must_== in.defaultValue
@@ -324,6 +324,19 @@ object FieldSpec extends Specification {
       Str(dtStr),
       JString(dtStr),
       Full(<input name=".*" type="text" tabindex="1" value={dtStr} id="mandatoryDateTimeField_id"></input>)
+    )
+  }
+
+  "DateTimeField with custom format" should {
+    val rec = CustomFormatDateTimeRecord.createRecord
+    val dt = Calendar.getInstance
+    val dtStr = rec.customFormatDateTimeField.formats.dateFormat.format(dt.getTime)
+    passConversionTests(
+      dt,
+      rec.customFormatDateTimeField,
+      Str(dtStr),
+      JString(dtStr),
+      Full(<input name=".*" type="text" tabindex="1" value={toInternetDate(dt.getTime)} id="customFormatDateTimeField_id"></input>)
     )
   }
 
