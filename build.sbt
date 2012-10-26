@@ -1,8 +1,9 @@
 import Dependencies._
 
-scalaVersion := "2.10.0-M7"
 
-scalaVersion in ThisBuild := "2.10.0-M7"
+scalaVersion in ThisBuild := "2.10.0-RC1"
+
+scalaBinaryVersion in ThisBuild   <<= scalaVersion
 
 organization in ThisBuild          := "net.liftweb"
 
@@ -16,7 +17,7 @@ startYear in ThisBuild             := Some(2006)
 
 organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
-crossScalaVersions in ThisBuild    := Seq("2.10.0-M7")
+crossScalaVersions in ThisBuild    := Seq("2.10.0-RC1")
 
 parallelExecution in ThisBuild := false
 
@@ -26,7 +27,7 @@ parallelExecution in ThisBuild := false
 
 // fork in test := true
 
-libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-M7"))
+libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC1"))
 
 // Settings for Sonatype compliance
 pomIncludeRepository in ThisBuild  := { _ => false }

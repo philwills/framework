@@ -41,11 +41,11 @@ object Dependencies {
   lazy val paranamer              = "com.thoughtworks.paranamer" % "paranamer"          % "2.4.1"
 //  lazy val scalajpa               = "org.scala-libs"             % "scalajpa"           % "1.4"     cross CVMappingAll
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
-  lazy val scala_compiler: ModuleMap  = "org.scala-lang"                % "scala-compiler"     % _
+  lazy val scala_compiler: ModuleMap  = "org.scala-lang"         % "scala-compiler"     % _
  // lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) // cross CVMappingAll
-  lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"          % slf4jVersion
-      lazy val squeryl                = "org.squeryl"                % "squeryl_2.10.0-M7"            % "0.9.5-3" 
-      lazy val scalaz_core                = "org.scalaz"                % "scalaz-core_2.10.0-M7"            % "6.0.4" 
+  lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"               % slf4jVersion
+  lazy val squeryl                = "org.squeryl"                % "squeryl_2.10.0-RC1"      % "0.9.5-3"
+  lazy val scalaz_core            = "org.scalaz"                 % "scalaz-core_2.10.0-RC1"  % "6.0.4"
 
   // Aliases
   lazy val mongo_driver = mongo_java_driver
@@ -77,6 +77,6 @@ object Dependencies {
   lazy val jetty6      = "org.mortbay.jetty"           % "jetty"                    % "6.1.26"     % "test"
   lazy val jwebunit    = "net.sourceforge.jwebunit"    % "jwebunit-htmlunit-plugin" % "2.5"        % "test"
   lazy val mockito_all = "org.mockito"                 % "mockito-all"              % "1.9.0"      % "test"
-  lazy val scalacheck =  "org.scalacheck"              % "scalacheck_2.10.0-M7"               % "1.10.0"     % "test" 
-  lazy val specs2 =      "org.specs2"                  % "specs2_2.10.0-M7"                   % "1.12.1.1"       % "test"
+  lazy val scalacheck =  "org.scalacheck"              %% "scalacheck"              % "1.10.0"     % "test"
+  lazy val specs2 =      "org.specs2"                  %% "specs2"                  % "1.12.2"     % "test"
 }
