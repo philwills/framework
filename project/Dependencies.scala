@@ -44,7 +44,7 @@ object Dependencies {
   lazy val scala_compiler: ModuleMap  = "org.scala-lang"         % "scala-compiler"     % _
  // lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) // cross CVMappingAll
   lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"               % slf4jVersion
-  lazy val squeryl                = "org.squeryl"                % "squeryl_2.10.0-RC1"      % "0.9.5-3"
+  lazy val squeryl                = "org.squeryl"                % "squeryl_2.10.0-RC1"      % "0.9.5-4"
   lazy val scalaz_core            = "org.scalaz"                 % "scalaz-core_2.10.0-RC1"  % "6.0.4"
 
   // Aliases
