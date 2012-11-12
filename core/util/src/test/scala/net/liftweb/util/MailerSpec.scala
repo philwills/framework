@@ -22,32 +22,36 @@ import javax.mail.internet.{MimeMessage, MimeMultipart}
 import org.specs2.mutable.Specification
 
 import common._
-import net.liftweb.util
-import net.liftweb.util
 
-/* FIXME -- locks up
+
 /**
  * Systems under specification for Lift Mailer.
  */
 object MailerSpec extends Specification {
   "Mailer Specification".title
   sequential
-  
-  MyMailer.touch()
 
-  import MyMailer._
-  
-  private def doNewMessage(f: => Unit): MimeMessage = {
+  Props.mode // touch the lazy val so it's detected correctly
+
+  val myMailer = new Mailer {
+    @volatile var lastMessage: Box[MimeMessage] = Empty
+
+    testModeSend.default.set((msg: MimeMessage) => {
+      lastMessage = Full(msg)
+    })
+  }
+
+  import myMailer._
+
+  private def doNewMessage(send: => Unit): MimeMessage = {
     lastMessage = Empty
 
-    val ignore = f
+    send
 
-    MailerSpec.this.synchronized {
-      while (lastMessage.isEmpty) {
-        MailerSpec.this.wait(100)
-      }
-      lastMessage.openOrThrowException("Tested in the above isEmpty block")
+    eventually {
+      lastMessage.isEmpty must_== false
     }
+    lastMessage openOrThrowException("Checked")
   }
 
   "A Mailer" should {
@@ -102,21 +106,3 @@ object MailerSpec extends Specification {
     }
   }
 }
-
-object MyMailer extends Mailer {
-    @volatile var lastMessage: Box[MimeMessage] = Empty
-
-   testModeSend.default.set((msg: MimeMessage) => {
-     lastMessage = Full(msg)
-     util.MailerSpec.notifyAll()
-     //MailerSpec.this.notifyAll()
-     ()
-   })
-
-  def touch() {
-    Props.testMode
-    Thread.sleep(10)
-  } // do nothing, but force initialization of this class
-}
-
-*/
