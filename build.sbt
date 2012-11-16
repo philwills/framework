@@ -1,7 +1,7 @@
 import Dependencies._
 
 
-scalaVersion in ThisBuild := "2.10.0-RC1"
+scalaVersion in ThisBuild := "2.10.0-RC2"
 
 scalaBinaryVersion in ThisBuild   <<= scalaVersion
 
@@ -17,7 +17,7 @@ startYear in ThisBuild             := Some(2006)
 
 organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
-crossScalaVersions in ThisBuild    := Seq("2.10.0-RC1")
+crossScalaVersions in ThisBuild    := Seq("2.10.0-RC2")
 
 parallelExecution in ThisBuild := false
 
@@ -27,7 +27,7 @@ parallelExecution in ThisBuild := false
 
 // fork in test := true
 
-libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC1"))
+libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC2"))
 
 // Settings for Sonatype compliance
 pomIncludeRepository in ThisBuild  := { _ => false }
