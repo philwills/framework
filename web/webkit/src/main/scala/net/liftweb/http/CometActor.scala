@@ -29,7 +29,6 @@ import JsCmds._
 import JE._
 import java.util.Locale
 
-
 /**
  * This is used as an indicator message for linked actors.
  *
