@@ -33,13 +33,12 @@ object Dependencies {
   lazy val commons_codec          = "commons-codec"              % "commons-codec"      % "1.6"
   lazy val commons_fileupload     = "commons-fileupload"         % "commons-fileupload" % "1.2.2"
   lazy val commons_httpclient     = "commons-httpclient"         % "commons-httpclient" % "3.1"
-//  lazy val dispatch_http          = "net.databinder"             % "dispatch-http"      % "0.7.8"  // cross CVMapping2911
   lazy val javamail               = "javax.mail"                 % "mail"               % "1.4.4"
-  lazy val joda_time              = "joda-time"                  % "joda-time"          % "1.6.2" // TODO: 2.1
+  lazy val joda_time              = "joda-time"                  % "joda-time"          % "2.1"
+  lazy val joda_convert           = "org.joda"                   % "joda-convert"       % "1.2"
   lazy val htmlparser             = "nu.validator.htmlparser"    % "htmlparser"         % "1.4"
   lazy val mongo_java_driver      = "org.mongodb"                % "mongo-java-driver"  % "2.7.3"
   lazy val paranamer              = "com.thoughtworks.paranamer" % "paranamer"          % "2.4.1"
-//  lazy val scalajpa               = "org.scala-libs"             % "scalajpa"           % "1.4"     cross CVMappingAll
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
   lazy val scala_compiler: ModuleMap  = "org.scala-lang"         % "scala-compiler"     % _
  // lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) // cross CVMappingAll
@@ -54,7 +53,7 @@ object Dependencies {
 
   // Provided scope:
   // Scope provided by container, available only in compile and test classpath, non-transitive by default.
-  lazy val logback         = "ch.qos.logback"    % "logback-classic" % "1.0.1"      % "provided"
+  lazy val logback         = "ch.qos.logback"    % "logback-classic" % "1.0.9"      % "provided"
   lazy val log4j           = "log4j"             % "log4j"           % "1.2.16"     % "provided"
   lazy val slf4j_log4j12   = "org.slf4j"         % "slf4j-log4j12"   % slf4jVersion % "provided"
   lazy val persistence_api = "javax.persistence" % "persistence-api" % "1.0"        % "provided"
