@@ -137,8 +137,6 @@ object BuildDef extends Build {
     persistenceProject("record")
         .dependsOn(proto)
 
-
-
   lazy val squeryl_record =
     persistenceProject("squeryl-record")
         .dependsOn(record, db)
