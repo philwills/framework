@@ -354,15 +354,16 @@ trait AbstractScreen extends Factory {
    * @param default - the default value of the field
    * @param stuff - any filter or validation functions
    */
-  protected def builder[T](name: => String, default: => T, stuff: FilterOrValidate[T]*)(implicit man: Manifest[T]): FieldBuilder[T] =
+  protected def builder[T](name: => String, default: => T, stuff: FilterOrValidate[T]*)(implicit man: Manifest[T]): FieldBuilder[T] = {
     new FieldBuilder[T](name, default, man, Empty,
-      ((stuff: Seq[FilterOrValidate[T]]).collect {
+      stuff.toList.collect {
         case AVal(v: (T => List[FieldError])) => v
-      }).toList,
-      (stuff.collect {
+      },
+      stuff.toList.collect {
         case AFilter(v) => v
       }).toList,
       stuff)
+  }
 
   protected object FilterOrValidate {
     implicit def promoteFilter[T](f: T => T): FilterOrValidate[T] = AFilter(f)
@@ -943,7 +944,7 @@ trait AbstractScreen extends Factory {
   }
 
   /**
-   * Grabs the FormFieldId and FormParam parameters 
+   * Grabs the FormFieldId and FormParam parameters
    */
   protected def grabParams(in: Seq[FilterOrValidate[_]]):
   List[SHtml.ElemAttr] = {
@@ -1482,7 +1483,7 @@ trait LiftScreen extends AbstractScreen with StatefulSnippet with ScreenWizardRe
       val localSnapshot = createSnapshot
       // val notices = S.getAllNotices
 
-      // if we're not Ajax, 
+      // if we're not Ajax,
       if (!ajaxForms_?) {
         S.seeOther(S.uri, () => {
           // S.appendNotices(notices)
