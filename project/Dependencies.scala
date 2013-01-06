@@ -23,7 +23,10 @@ object Dependencies {
 
   type ModuleMap = String => ModuleID
 
-  lazy val slf4jVersion = "1.6.4"
+  lazy val CVMapping29   = crossMapped("2.10.0" -> "2.10", "2.9.1-1" -> "2.9.2", "2.9.1" -> "2.9.2")
+  lazy val CVMappingAll  = crossMapped("2.10.0" -> "2.10", "2.9.2" -> "2.9.1", "2.9.1-1" -> "2.9.1")
+
+  lazy val slf4jVersion = "1.7.2"
 
   lazy val scalazGroup       = defaultOrMapped("org.scalaz")
   lazy val scalazVersion     = defaultOrMapped("6.0.4", "2.9.0" -> "6.0.RC2")
@@ -41,10 +44,9 @@ object Dependencies {
   lazy val paranamer              = "com.thoughtworks.paranamer" % "paranamer"          % "2.4.1"
   lazy val scalap: ModuleMap      = "org.scala-lang"             % "scalap"             % _
   lazy val scala_compiler: ModuleMap  = "org.scala-lang"         % "scala-compiler"     % _
- // lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) // cross CVMappingAll
-  lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"               % slf4jVersion
-  lazy val squeryl                = "org.squeryl"                %% "squeryl"      % "0.9.5-6"
-  lazy val scalaz_core            = "org.scalaz"                 % "scalaz-core_2.10.0-RC2"  % "6.0.4"
+  lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"          % slf4jVersion
+  lazy val squeryl                = "org.squeryl"                %% "squeryl"           % "0.9.5-6"
+  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.10.0" -> "2.10.0")
 
   // Aliases
   lazy val mongo_driver = mongo_java_driver
@@ -76,6 +78,8 @@ object Dependencies {
   lazy val jetty6      = "org.mortbay.jetty"           % "jetty"                    % "6.1.26"     % "test"
   lazy val jwebunit    = "net.sourceforge.jwebunit"    % "jwebunit-htmlunit-plugin" % "2.5"        % "test"
   lazy val mockito_all = "org.mockito"                 % "mockito-all"              % "1.9.0"      % "test"
-  lazy val scalacheck =  "org.scalacheck"              %% "scalacheck"              % "1.10.0"     % "test"
-  lazy val specs2 =      "org.specs2"                  %% "specs2"                  % "1.12.2"     % "test"
+  lazy val scalacheck  = "org.scalacheck"             %% "scalacheck"               % "1.10.0"     % "test"
+  lazy val specs2: ModuleMap =
+                         "org.specs2"                 %% "specs2"                   % defaultOrMapped("1.12.3")(_)
+
 }

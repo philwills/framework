@@ -17,22 +17,18 @@ startYear in ThisBuild             := Some(2006)
 
 organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
-crossScalaVersions in ThisBuild    := Seq("2.10.0-RC2")
+crossScalaVersions in ThisBuild    := Seq("2.10.0")
 
-parallelExecution in ThisBuild := false
+parallelExecution in ThisBuild     := false
 
-// fork := true
+libraryDependencies in ThisBuild   ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC2"))
 
-// fork in ThisBuild := true
-
-// fork in test := true
-
-libraryDependencies in ThisBuild ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC2"))
+libraryDependencies in ThisBuild   <++= scalaVersion {sv => Seq(specs2(sv), scalacheck) }
 
 // Settings for Sonatype compliance
 pomIncludeRepository in ThisBuild  := { _ => false }
 
-publishTo in ThisBuild            <<= isSnapshot(if (_) Some(Opts.resolver.sonatypeSnapshots) else Some(Opts.resolver.sonatypeStaging))
+publishTo in ThisBuild             <<= isSnapshot(if (_) Some(Opts.resolver.sonatypeSnapshots) else Some(Opts.resolver.sonatypeStaging))
 
 scmInfo in ThisBuild               := Some(ScmInfo(url("https://github.com/lift/framework"), "scm:git:https://github.com/lift/framework.git"))
 
