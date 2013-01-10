@@ -1,7 +1,7 @@
 import Dependencies._
 
 
-scalaVersion in ThisBuild := "2.10.0-RC2"
+scalaVersion in ThisBuild := "2.10.0"
 
 scalaBinaryVersion in ThisBuild   <<= scalaVersion
 
@@ -20,8 +20,6 @@ organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 crossScalaVersions in ThisBuild    := Seq("2.10.0")
 
 parallelExecution in ThisBuild     := false
-
-libraryDependencies in ThisBuild   ++= Seq(specs2, scalacheck, scala_compiler("2.10.0-RC2"))
 
 libraryDependencies in ThisBuild   <++= scalaVersion {sv => Seq(specs2(sv), scalacheck) }
 
