@@ -1,9 +1,6 @@
 import Dependencies._
 
-
 scalaVersion in ThisBuild := "2.10.0"
-
-scalaBinaryVersion in ThisBuild   <<= scalaVersion
 
 organization in ThisBuild          := "net.liftweb"
 
@@ -19,9 +16,9 @@ organizationName in ThisBuild      := "WorldWide Conferencing, LLC"
 
 crossScalaVersions in ThisBuild    := Seq("2.10.0")
 
-parallelExecution in ThisBuild     := false
+libraryDependencies in ThisBuild <++= scalaVersion {sv => Seq(specs2(sv), scalacheck) }
 
-libraryDependencies in ThisBuild   <++= scalaVersion {sv => Seq(specs2(sv), scalacheck) }
+parallelExecution in ThisBuild     := false
 
 // Settings for Sonatype compliance
 pomIncludeRepository in ThisBuild  := { _ => false }

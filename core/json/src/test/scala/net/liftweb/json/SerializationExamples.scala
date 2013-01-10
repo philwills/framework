@@ -268,7 +268,7 @@ object CustomSerializerExamples extends Specification {
       case (TypeInfo(clazz, ptype), json) if classOf[IndexedSeq[_]].isAssignableFrom(clazz) => json match {
         case JArray(xs) =>
           val t = ptype.getOrElse(throw new MappingException("parameterized type not known"))
-          xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None))(format)).toIndexedSeq
+          xs.map(x => Extraction.extract(x, TypeInfo(t.getActualTypeArguments()(0).asInstanceOf[Class[_]], None))(formats)).toIndexedSeq
         case x => throw new MappingException("Can't convert " + x + " to IndexedSeq")
       }
     }

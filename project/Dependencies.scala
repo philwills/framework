@@ -29,7 +29,7 @@ object Dependencies {
   lazy val slf4jVersion = "1.7.2"
 
   lazy val scalazGroup       = defaultOrMapped("org.scalaz")
-  lazy val scalazVersion     = defaultOrMapped("6.0.4", "2.9.0" -> "6.0.RC2")
+  lazy val scalazVersion     = defaultOrMapped("6.0.4")
 
   // Compile scope:
   // Scope available in all classpath, transitive by default.
@@ -46,7 +46,7 @@ object Dependencies {
   lazy val scala_compiler: ModuleMap  = "org.scala-lang"         % "scala-compiler"     % _
   lazy val slf4j_api              = "org.slf4j"                  % "slf4j-api"          % slf4jVersion
   lazy val squeryl                = "org.squeryl"                %% "squeryl"           % "0.9.5-6"
-  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.10.0" -> "2.10.0")
+  lazy val scalaz_core: ModuleMap = sv => scalazGroup(sv)        % "scalaz-core"        % scalazVersion(sv) cross crossMapped("2.10.0" -> "2.10")
 
   // Aliases
   lazy val mongo_driver = mongo_java_driver
@@ -80,6 +80,6 @@ object Dependencies {
   lazy val mockito_all = "org.mockito"                 % "mockito-all"              % "1.9.0"      % "test"
   lazy val scalacheck  = "org.scalacheck"             %% "scalacheck"               % "1.10.0"     % "test"
   lazy val specs2: ModuleMap =
-                         "org.specs2"                 %% "specs2"                   % defaultOrMapped("1.12.3")(_)
+                         "org.specs2"                 %% "specs2"                   % defaultOrMapped("1.12.3")(_) % "test"
 
 }

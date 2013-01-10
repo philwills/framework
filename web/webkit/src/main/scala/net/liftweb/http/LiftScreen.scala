@@ -361,7 +361,7 @@ trait AbstractScreen extends Factory {
       },
       stuff.toList.collect {
         case AFilter(v) => v
-      }).toList,
+      },
       stuff)
   }
 
