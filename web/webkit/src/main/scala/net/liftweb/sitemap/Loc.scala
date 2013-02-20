@@ -238,10 +238,7 @@ trait Loc[T] {
       .getOrElse(Map.empty)
 
   def snippet(name: String): Box[NodeSeq => NodeSeq] = {
-    val test = (name, currentValue)
-
-    if ((snippets orElse calcSnippets).isDefinedAt(test)) Full((snippets orElse calcSnippets)(test))
-    else Empty
+    snippets orElse calcSnippets lift (name, currentValue)
   }
 
   protected object accessTestRes extends RequestVar[Either[Boolean, Box[() => LiftResponse]]](_testAccess) {
