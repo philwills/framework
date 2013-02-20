@@ -231,35 +231,11 @@ trait Loc[T] {
     (np.map(_.f()) or param.map(_.f(currentValue))) openOr false
   }
 
-  lazy val calcSnippets: SnippetTest = {
-    def buildPF(in: Loc.Snippet): PartialFunction[String, NodeSeq => NodeSeq] = {
-      new PartialFunction[String, NodeSeq => NodeSeq] {
-        def isDefinedAt(s: String) = s == in.name
-        def apply(s: String): NodeSeq => NodeSeq = {
-          if (isDefinedAt(s)) in.func
-          else throw new MatchError()
-        }
-      }
-    }
-
-    val singles = (
-      allParams.flatMap{ case v: Loc.Snippet => Some(v);     case _ => None }.toList.map(buildPF) :::
-      allParams.flatMap{ case v: Loc.LocSnippets => Some(v); case _ => None }.toList
-    )
-
-    if (singles.isEmpty) Map.empty
-    else {
-      val func: PartialFunction[String, NodeSeq => NodeSeq] = singles match {
-        case pf :: Nil => pf
-        case pfs => pfs.reduceLeft[PartialFunction[String, NodeSeq => NodeSeq]](_ orElse _)
-      }
-
-      new SnippetTest {
-        def isDefinedAt(in: (String, Box[T])): Boolean = func.isDefinedAt(in._1)
-        def apply(in: (String, Box[T])): NodeSeq => NodeSeq = func.apply(in._1)
-      }
-    }
-  }
+  lazy val calcSnippets: SnippetTest =
+    allParams
+      .collect { case v: Loc.ValueSnippets[T] => v.snippets }
+      .reduceLeftOption(_ orElse _)
+      .getOrElse(Map.empty)
 
   def snippet(name: String): Box[NodeSeq => NodeSeq] = {
     val test = (name, currentValue)
@@ -657,11 +633,13 @@ object Loc {
    * A single snippet that's assocaited with a given location... the snippet
    * name and the snippet function'
    */
-  class Snippet(val name: String, _func: => NodeSeq => NodeSeq) extends AnyLocParam {
+  class Snippet(val name: String, _func: => NodeSeq => NodeSeq) extends ValueSnippets[Any] with AnyLocParam {
     /**
      * The NodeSeq => NodeSeq function 
      */
     def func: NodeSeq => NodeSeq = _func
+
+    def snippets = { case (`name`, _) => func }
   }
 
   object Snippet {
@@ -693,11 +671,38 @@ object Loc {
     def unapply(in: Snippet): Option[(String, NodeSeq => NodeSeq)] = Some(in.name -> in.func)
   }
 
+
+  trait ValueSnippets[A] extends LocParam[A] {
+    def snippets: PartialFunction[(String, Box[A]), NodeSeq => NodeSeq]
+  }
+  object ValueSnippets {
+    def apply[A](pf: PartialFunction[(String, Box[A]), NodeSeq => NodeSeq]): ValueSnippets[A] = new ValueSnippets[A] {
+      def snippets = pf
+    }
+  }
+
   /**
    * Allows you to create a handler for many snippets that are associated with
    * a Loc
    */
-  trait LocSnippets extends PartialFunction[String, NodeSeq => NodeSeq] with AnyLocParam
+  trait LocSnippets extends PartialFunction[String, NodeSeq => NodeSeq] with ValueSnippets[Any] with AnyLocParam {
+    def snippets = {
+      case (s, _) if isDefinedAt(s) => apply(s)
+    }
+  }
+
+  /**
+   * A subclass of LocSnippets with a built in dispatch method (no need to
+   * implement isDefinedAt or apply... just
+   * def dispatch: PartialFunction[String, NodeSeq => NodeSeq]
+   */
+  trait DispatchLocSnippets extends LocSnippets {
+    def dispatch: PartialFunction[String, NodeSeq => NodeSeq]
+
+    def isDefinedAt(n: String) = dispatch.isDefinedAt(n)
+
+    def apply(n: String) = dispatch.apply(n)
+  }
 
   /**
    * If this parameter is included, the item will not be visible in the menu, but
@@ -757,19 +762,6 @@ object Loc {
    * with the parameterized type passed into the function
    */
   case class CalcParamStateless[-T](f: Box[T] => Boolean) extends LocParam[T]
-
-  /**
-   * A subclass of LocSnippets with a built in dispatch method (no need to
-   * implement isDefinedAt or apply... just
-   * def dispatch: PartialFunction[String, NodeSeq => NodeSeq]
-   */
-  trait DispatchLocSnippets extends LocSnippets {
-    def dispatch: PartialFunction[String, NodeSeq => NodeSeq]
-
-    def isDefinedAt(n: String) = dispatch.isDefinedAt(n)
-
-    def apply(n: String) = dispatch.apply(n)
-  }
 
   /**
    * A function that can be used to calculate the link text from the current
