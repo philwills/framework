@@ -928,7 +928,7 @@ trait BindHelpers {
            xml: NodeSeq, params: BindParam*): NodeSeq = {
     val nsColon = namespace + ":"
 
-    BindHelpers._bindNodes.doWith(xml :: (BindHelpers._bindNodes.box.openOr(Nil))) {
+    BindHelpers._bindNodes.withScope(xml :: (BindHelpers._bindNodes.box.openOr(Nil))) {
       val map: scala.collection.immutable.Map[String, BindParam] = scala.collection.immutable.HashMap.empty ++ params.map(p => (p.name, p))
 
       def attrBind(attr: MetaData): MetaData = attr match {
@@ -964,7 +964,7 @@ trait BindHelpers {
                                                   e.scope,
                                                   e.child :_*))
 
-            BindHelpers._currentNode.doWith(fake) {
+            BindHelpers._currentNode.withScope(fake) {
               map.get(fake.label) match {
                 case None =>
                   nodeFailureXform.map(_(fake)) openOr fake
@@ -975,7 +975,7 @@ trait BindHelpers {
             }
           }
 
-          case s: Elem if s.prefix == namespace => BindHelpers._currentNode.doWith(s) {
+          case s: Elem if s.prefix == namespace => BindHelpers._currentNode.withScope(s) {
             map.get(s.label) match {
               case None =>
                 nodeFailureXform.map(_(s)) openOr s
@@ -988,7 +988,7 @@ trait BindHelpers {
           }
 
           case s: Elem if bindByNameType(s.label) && (attrStr(s, "name").startsWith(namespace+":")) &&
-                          bindByNameTag(namespace, s) != "" => BindHelpers._currentNode.doWith(s) {
+                          bindByNameTag(namespace, s) != "" => BindHelpers._currentNode.withScope(s) {
             val tag = bindByNameTag(namespace, s)
             map.get(tag) match {
               case None => nodeFailureXform.map(_(s)) openOr s

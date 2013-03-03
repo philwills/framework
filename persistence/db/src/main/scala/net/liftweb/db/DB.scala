@@ -116,7 +116,7 @@ trait DB extends Loggable {
   */
   def doWithConnectionManagers[T](mgrs: (ConnectionIdentifier, ConnectionManager)*)(f: => T): T = {
     val newMap = mgrs.foldLeft(threadLocalConnectionManagers.box openOr Map())(_ + _)
-    threadLocalConnectionManagers.doWith(newMap)(f)
+    threadLocalConnectionManagers.withScope(newMap)(f)
   }
 
   case class ConnectionHolder(conn: SuperConnection, cnt: Int, postTransaction: List[Boolean => Unit], rolledBack: Boolean)

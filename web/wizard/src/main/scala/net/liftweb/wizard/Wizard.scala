@@ -23,6 +23,7 @@ import js._
 import JsCmds._
 
 import common._
+import screen.{ScreenFieldInfo, ScreenWizardRendered, AbstractScreen}
 import util._
 import db._
 import Helpers._

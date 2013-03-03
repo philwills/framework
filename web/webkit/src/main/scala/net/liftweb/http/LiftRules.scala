@@ -359,18 +359,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
   val convertToEntity: FactoryMaker[Boolean] = new FactoryMaker(false) {}
 
   /**
-   * Certain paths within your application can be marked as stateless
-   * and if there is access to Lift's stateful facilities (setting
-   * SessionVars, updating function tables, etc.) the developer will
-   * receive a notice and the operation will not complete.  This test
-   * has been deprecated in favor of statelessReqTest which also passes
-   * the HTTPRequest instance for testing of the user agent and other stuff.
-   */
-  @deprecated("Use statelessReqTest", "2.4")
-  val statelessTest = RulesSeq[StatelessTestPF]
-
-
-  /**
    * Certain paths and requests within your application can be marked as stateless
    * and if there is access to Lift's stateful facilities (setting
    * SessionVars, updating function tables, etc.) the developer will
@@ -1039,14 +1027,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
    * Holds user's DispatchPF functions that will be executed in a stateless context. This means that
    * no session will be created and no JSESSIONID cookie will be presented to the user (unless
    * the user has presented a JSESSIONID cookie).
-   */
-  @deprecated("Use statelessDispatch", "2.4")
-  def statelessDispatchTable = statelessDispatch
-
-  /**
-   * Holds user's DispatchPF functions that will be executed in a stateless context. This means that
-   * no session will be created and no JSESSIONID cookie will be presented to the user (unless
-   * the user has presented a JSESSIONID cookie).
    *
    * This is the way to do stateless REST in Lift
    */
@@ -1234,11 +1214,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
    */
   val statelessRewrite = RulesSeq[RewritePF]
 
-  /**
-   * Use statelessRewrite or statefuleRewrite
-   */
-  @deprecated("Use statelessRewrite or statefuleRewrite", "2.3")
-  val rewrite = statelessRewrite
 
   /**
    *  Holds the user's rewrite functions that can alter the URI parts and query parameters.
@@ -1375,10 +1350,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
    * LiftRules.noCometSessionCmd).
    */
   @volatile var redirectAsyncOnSessionLoss = true
-  @deprecated("Use redirectAsyncOnSessionLoss instead.", "2.5")
-  def redirectAjaxOnSessionLoss = redirectAsyncOnSessionLoss
-  @deprecated("Use redirectAsyncOnSessionLoss instead.", "2.5")
-  def redirectAjaxOnSessionLoss_=(updated:Boolean) = redirectAsyncOnSessionLoss = updated
 
   /**
    * The sequence of partial functions (pattern matching) for handling converting an exception to something to
@@ -1510,12 +1481,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
    * Tells Lift if the Comet JavaScript should be included. By default it is set to true.
    */
   @volatile var autoIncludeComet: LiftSession => Boolean = session => true
-
-  /**
-   * Tells Lift if the Ajax JavaScript should be included. By default it is set to true.
-   */
-  @deprecated("Use autoIncludeAjaxCalc", "2.4")
-  @volatile var autoIncludeAjax: LiftSession => Boolean = session => autoIncludeAjaxCalc.vend().apply(session)
 
   val autoIncludeAjaxCalc: FactoryMaker[() => LiftSession => Boolean] = 
   new FactoryMaker(() => () => (session: LiftSession) => true) {}
@@ -1736,25 +1701,6 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
 
   @volatile var templateCache: Box[TemplateCache[(Locale, List[String]), NodeSeq]] = Empty
 
-  /**
-   * A function to format a Date... can be replaced by a function that is user-specific
-   Replaced by dateTimeConverter
-   */
-  @deprecated("Replaced by dateTimeConverter", "2.3")
-  @volatile var formatDate: Date => String = date => date match {
-    case null => LiftRules.dateTimeConverter.vend.formatDate(new Date(0L))
-    case s    => toInternetDate(s)
-  }
-
-  /**
-   * A function that parses a String into a Date... can be replaced by something that's user-specific
-   Replaced by dateTimeConverter
-   */
-  @deprecated("Replaced by dateTimeConverter", "2.3")
-  @volatile var parseDate: String => Box[Date] = str => str match {
-    case null => Empty
-    case s => Helpers.toDate(s)
-  }
 
   val dateTimeConverter: FactoryMaker[DateTimeConverter] = new FactoryMaker[DateTimeConverter]( () => DefaultDateTimeConverter ) {}
 
@@ -1774,16 +1720,16 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
   import containers._
 
   /**
-   * Provides the async provider instance responsible for suspending/resuming requests
-   */
-  @deprecated("Register your povider via addSyncProvider", "2.4")
-  var servletAsyncProvider: (HTTPRequest) => ServletAsyncProvider = null // (req) => new Jetty6AsyncProvider(req)
-
-  /**
    * The meta for the detected AsyncProvider given the container we're running in
    */
   lazy val asyncProviderMeta: Box[AsyncProviderMeta] =
     asyncMetaList.find(_.suspendResumeSupport_?)
+
+  /**
+   * Provides the async provider instance responsible for suspending/resuming requests
+   */
+  @deprecated("Register your povider via addSyncProvider", "2.4")
+  var servletAsyncProvider: (HTTPRequest) => ServletAsyncProvider = null // (req) => new Jetty6AsyncProvider(req)
 
   /**
    * A function that converts the current Request into an AsyncProvider.
@@ -1894,7 +1840,7 @@ class RulesSeq[T] {
       case Nil => what
       case x => what ::: x
     }
-    pre.doWith(newList)(doCur(f))
+    pre.withScope(newList)(doCur(f))
   }
 
   /**
@@ -1908,14 +1854,14 @@ class RulesSeq[T] {
       case Nil => what
       case x => x ::: what
     }
-    app.doWith(newList)(doCur(f))
+    app.withScope(newList)(doCur(f))
   }
 
   /**
    * Precompute the current rule set
    */
   private def doCur[A](f: => A): A = {
-    cur.doWith((pre.value, app.value) match {
+    cur.withScope((pre.value, app.value) match {
     case (null, null) | (null, Nil) | (Nil, null) | (Nil, Nil) => rules
     case (null, xs) => rules ::: xs
     case (xs, null) => xs ::: rules
@@ -1967,38 +1913,10 @@ trait FirstBox[F, T] {
 
 }
 
-sealed trait NotFound
-
-case object DefaultNotFound extends NotFound
-
-final case class NotFoundAsResponse(response: LiftResponse) extends NotFound
-
-final case class NotFoundAsTemplate(path: ParsePath) extends NotFound
-
-final case class NotFoundAsNode(node: NodeSeq) extends NotFound
 
 final case class BreakOut()
 
-abstract class Bootable {
-  def boot(): Unit;
-}
 
-/*
-/**
- * Factory object for RulesSeq instances
- */
-object RulesSeq {
-  def apply[T]: RulesSeq[T] = new RulesSeq[T]
-}
-*/
-
-
-private[http] case object DefaultBootstrap extends Bootable {
-  def boot(): Unit = {
-    val f = createInvoker("boot", Class.forName("bootstrap.liftweb.Boot").newInstance.asInstanceOf[AnyRef])
-    f.map {f => f()}
-  }
-}
 
 /**
  * Holds the Comet identification information
@@ -2011,54 +1929,6 @@ trait CometVersionPair {
 
 case class CVP(guid: String, version: Long) extends CometVersionPair
 
-case class XHTMLValidationError(msg: String, line: Int, col: Int)
-
-trait XHtmlValidator extends Function1[Node, List[XHTMLValidationError]]
-
-object StrictXHTML1_0Validator extends GenericValidator {
-  def ngurl = "http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd"
-}
-
-abstract class GenericValidator extends XHtmlValidator with Loggable {
-  import javax.xml.validation._
-  import javax.xml._
-  import XMLConstants._
-  import java.net.URL
-  import javax.xml.transform.dom._
-  import javax.xml.transform.stream._
-  import java.io.ByteArrayInputStream
-
-  private lazy val sf = SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI)
-
-  protected def ngurl: String
-
-  private lazy val schema = tryo(sf.newSchema(new URL(ngurl)))
-
-  def apply(in: Node): List[XHTMLValidationError] = {
-    (for{
-      sc <- schema
-      v <- tryo(sc.newValidator)
-      source = new StreamSource(new ByteArrayInputStream(in.toString.getBytes("UTF-8")))
-    } yield try {
-        v.validate(source)
-        Nil
-      } catch {
-        case e: org.xml.sax.SAXParseException =>
-          List(XHTMLValidationError(e.getMessage, e.getLineNumber, e.getColumnNumber))
-      }) match {
-      case Full(x) => x
-      case Failure(msg, _, _) =>
-        logger.info("XHTML Validation Failure: " + msg)
-        Nil
-      case _ => Nil
-    }
-  }
-}
-
-
-object TransitionalXHTML1_0Validator extends GenericValidator {
-  def ngurl = "http://www.w3.org/2002/08/xhtml/xhtml1-transitional.xsd"
-}
 
 
 trait FormVendor {

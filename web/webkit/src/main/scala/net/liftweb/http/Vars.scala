@@ -533,6 +533,7 @@ private[http] trait CoreRequestVarHandler {
   type MyType <: HasLogUnreadVal
 
   private val logger = Logger(classOf[CoreRequestVarHandler])
+
   // This maps from the RV name to (RV instance, value, set-but-not-read flag)
   private val vals: ThreadGlobal[ConcurrentHashMap[String, (MyType, Any, Boolean)]] = new ThreadGlobal
   private val cleanup: ThreadGlobal[ListBuffer[Box[LiftSession] => Unit]] = new ThreadGlobal
@@ -547,10 +548,10 @@ private[http] trait CoreRequestVarHandler {
     val myVals = vals.value
     val mySessionThing = sessionThing.value
 
-    f => isIn.doWith("in")(
-      vals.doWith(myVals)(
-        cleanup.doWith(new ListBuffer) {
-          sessionThing.doWith(mySessionThing) {
+    f => isIn.withScope("in")(
+      vals.withScope(myVals)(
+        cleanup.withScope(new ListBuffer) {
+          sessionThing.withScope(mySessionThing) {
             val ret: T = f()
 
             cleanup.value.toList.foreach(clean => Helpers.tryo(clean(sessionThing.value)))
@@ -612,10 +613,10 @@ private[http] trait CoreRequestVarHandler {
       sessionThing.set(session)
       f
     } else {
-      isIn.doWith("in")(
-        vals.doWith(new ConcurrentHashMap)(
-          cleanup.doWith(new ListBuffer) {
-            sessionThing.doWith(session) {
+      isIn.withScope("in")(
+        vals.withScope(new ConcurrentHashMap)(
+          cleanup.withScope(new ListBuffer) {
+            sessionThing.withScope(session) {
               val ret: T = f
 
               cleanup.value.toList.foreach(clean => Helpers.tryo(clean(sessionThing.value)))

@@ -133,6 +133,9 @@ trait JQueryArtifacts extends JSArtifacts {
             info.failFunc.map("error : " + _).toList mkString ("{ ", ", ", " }")
 }
 
+
+case object JQueryArtifacts extends JQueryArtifacts
+
 @deprecated("Use JQueryArtifacts in LiftRules and see http://liftweb.net/jquery for more information", "2.5")
 case object JQuery13Artifacts extends JQueryArtifacts {
   override def pathRewriter: PartialFunction[List[String], List[String]] = {
@@ -149,6 +152,5 @@ case object JQuery14Artifacts extends JQueryArtifacts {
   }
 }
 
-case object JQueryArtifacts extends JQueryArtifacts
 
 

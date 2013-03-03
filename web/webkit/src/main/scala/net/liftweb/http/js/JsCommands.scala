@@ -277,7 +277,7 @@ object JE {
   }
 
   object LjSwappable {
-    def apply(visible: JsExp, hidden: JsExp): JxBase = {
+/*    def apply(visible: JsExp, hidden: JsExp): JxBase = {
       new JxNodeBase {
         def child = Nil
 
@@ -301,7 +301,9 @@ object JE {
                                   addToDocFrag("df", hidden.toList) &
                                   JE.JsRaw("return df").cmd).toJsCmd + "()))").cmd
       }
+
     }
+    */
   }
 
   object LjBuildIndex {
@@ -548,25 +550,7 @@ object JE {
 }
 
 trait HtmlFixer {
-  /**
-   * Super important... call fixHtml at instance creation time and only once
-   * This method must be run in the context of the thing creating the XHTML
-   * to capture the bound functions
-   */
-  @deprecated("Use fixHtmlAndJs or fixHtmlFunc", "2.4")
-  protected def fixHtml(uid: String, content: NodeSeq): String = {
-    val w = new java.io.StringWriter
 
-    S.htmlProperties.
-    htmlWriter(Group(S.session.
-                     map(s =>
-                       s.fixHtml(s.processSurroundAndInclude("JS SetHTML id: "
-                                                             + uid,
-                                                             content))).
-                     openOr(content)),
-               w)
-    w.toString.encJs
-  }
 
   /**
    * Calls fixHtmlAndJs and if there's embedded script tags,

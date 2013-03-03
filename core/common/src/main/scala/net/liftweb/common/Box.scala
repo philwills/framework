@@ -192,7 +192,7 @@ sealed trait BoxTrait {
  *   <li> you can "pass" a Box to a function for side effects: <code>Full(1) $ { x: Box[Int] => println(x openOr 0) }</code></li>
  * </ul>
  */
-sealed abstract class Box[+A] extends Product with Serializable{
+sealed abstract class  Box[+A] extends Product with Serializable{
   self =>
   /**
    * Returns true if this Box contains no value (is Empty or Failure or ParamFailure)
@@ -430,6 +430,8 @@ sealed abstract class Box[+A] extends Product with Serializable{
    */
   def pass(f: Box[A] => Unit): Box[A] = {f(this) ; this}
 
+  def recoverWith(func: PartialFunction[Throwable, A]): Box[A] = this
+
   /**
    * Alias for pass
    */
@@ -500,6 +502,8 @@ sealed abstract class Box[+A] extends Product with Serializable{
     if (pf.isDefinedAt(value)) Full(pf(value))
     else Empty)
   }
+
+  def recoverWith(func: PartialFunction[Throwable, A]): A
 }
 
 /**
@@ -595,6 +599,7 @@ final case class Full[+A](value: A) extends Box[A]{
   override def ===[B >: A](to: B): Boolean = value == to
 
   override def dmap[B](dflt: => B)(f: A => B): B = f(value)
+
 }
 
 /**
@@ -653,6 +658,8 @@ sealed abstract class EmptyBox extends Box[Nothing] with Serializable {
 
   override def ~>[T](errorCode: => T): ParamFailure[T] =
     ParamFailure("", Empty, Empty, errorCode)
+
+
 }
 
 /**
@@ -760,6 +767,11 @@ sealed case class Failure(msg: String, exception: Box[Throwable], chain: Box[Fai
   override def ?~!(msg: => String): Failure = Failure(msg, Empty, Full(this))
 
   override def ~>[T](errorCode: => T): ParamFailure[T] = ParamFailure(msg, exception, chain, errorCode)
+
+  override def recoverWith(func: PartialFunction[Throwable, A]): Box[A] = {
+ //   exception.map(a => func.isDefinedAt(a); a).map(a => func.apply(a))
+
+  }
 }
 
 /**

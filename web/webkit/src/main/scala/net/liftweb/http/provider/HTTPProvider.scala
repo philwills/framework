@@ -57,17 +57,18 @@ trait HTTPProvider {
       LiftRules.early.toList.foreach(_(req))
     }
 
-    CurrentHTTPReqResp.doWith(req -> resp) {
-      val newReq = Req(req, LiftRules.statelessRewrite.toList,
+    CurrentHTTPReqResp.withScope(req -> resp) {
+      val newReq = Req(req,
+        LiftRules.statelessRewrite.toList,
         Nil,
         LiftRules.statelessReqTest.toList,
         System.nanoTime)
 
-      CurrentReq.doWith(newReq) {
-        URLRewriter.doWith(url =>
-          NamedPF.applyBox(resp.encodeUrl(url),
-            LiftRules.urlDecorate.toList) openOr
-            resp.encodeUrl(url)) {
+      CurrentReq.withScope(newReq) {
+        val urlRewrite = (url: String) =>
+          NamedPF.applyBox(resp.encodeUrl(url), LiftRules.urlDecorate.toList) openOr resp.encodeUrl(url)
+
+        URLRewriter.doWith(urlRewrite) {
           if (!(isLiftRequest_?(newReq) &&
             actualServlet.service(newReq, resp))) {
             chain

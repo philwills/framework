@@ -44,7 +44,7 @@ object MockWebSpec extends Specification  {
   val mockLiftRules = new LiftRules()
 
   // Set up our mock LiftRules instance
-  LiftRulesMocker.devTestLiftRulesInstance.doWith(mockLiftRules) {
+  LiftRulesMocker.devTestLiftRulesInstance.withScope(mockLiftRules) {
     // Global LiftRules setup
     LiftRules.statelessRewrite.append {
       case RewriteRequest(ParsePath(List("test", "stateless"), _, _, _), _, _) => {
@@ -100,8 +100,8 @@ object MockWebSpec extends Specification  {
     }
 
     "process LiftRules.early when configured" in {
-      LiftRulesMocker.devTestLiftRulesInstance.doWith(mockLiftRules) {
-        useLiftRules.doWith(true) {
+      LiftRulesMocker.devTestLiftRulesInstance.withScope(mockLiftRules) {
+        useLiftRules.withScope(true) {
           testReq("http://foo.com/test/this") {
             req => req.remoteAddr must_== "1.2.3.4"
           }
@@ -110,8 +110,8 @@ object MockWebSpec extends Specification  {
     }
 
     "process LiftRules stateless rewrites when configured" in {
-      LiftRulesMocker.devTestLiftRulesInstance.doWith(mockLiftRules) {
-        useLiftRules.doWith(true) {
+      LiftRulesMocker.devTestLiftRulesInstance.withScope(mockLiftRules) {
+        useLiftRules.withScope(true) {
           testReq("http://foo.com/test/stateless") {
             req => req.path.partPath must_== List("stateless", "works")
           }
@@ -137,8 +137,8 @@ object MockWebSpec extends Specification  {
     }
 
     "process S with stateless rewrites" in {
-      LiftRulesMocker.devTestLiftRulesInstance.doWith(mockLiftRules) {
-        useLiftRules.doWith(true) {
+      LiftRulesMocker.devTestLiftRulesInstance.withScope(mockLiftRules) {
+        useLiftRules.withScope(true) {
           testS("http://foo.com/test/stateless") {
             S.request.foreach(_.path.partPath must_== List("stateless", "works"))
           }
@@ -148,8 +148,8 @@ object MockWebSpec extends Specification  {
     }
 
     "process S with stateful rewrites" in {
-      LiftRulesMocker.devTestLiftRulesInstance.doWith(mockLiftRules) {
-        useLiftRules.doWith(true) {
+      LiftRulesMocker.devTestLiftRulesInstance.withScope(mockLiftRules) {
+        useLiftRules.withScope(true) {
           testS("http://foo.com/test/stateful") {
             S.request.foreach(_.path.partPath must_== List("stateful", "works"))
           }

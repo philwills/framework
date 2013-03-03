@@ -1275,10 +1275,21 @@ object URLRewriter {
   private val funcHolder = new ThreadGlobal[(String) => String]
 
   def doWith[R](f: (String) => String)(block: => R): R = {
-    funcHolder.doWith(f) {
+    funcHolder.withScope(f) {
       block
     }
   }
 
   def rewriteFunc: Box[(String) => String] = Box.legacyNullTest(funcHolder value)
 }
+
+sealed trait NotFound
+
+case object DefaultNotFound extends NotFound
+
+final case class NotFoundAsResponse(response: LiftResponse) extends NotFound
+
+final case class NotFoundAsTemplate(path: ParsePath) extends NotFound
+
+final case class NotFoundAsNode(node: NodeSeq) extends NotFound
+

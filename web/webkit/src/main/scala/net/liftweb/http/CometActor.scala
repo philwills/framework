@@ -709,7 +709,7 @@ trait CometActor extends LiftActor with LiftCometActor with BindHelpers {
     val what = composeFunction
     val myPf: PartialFunction[Any, Unit] = new PartialFunction[Any, Unit] {
       def apply(in: Any): Unit =
-        CurrentCometActor.doWith(CometActor.this) {
+        CurrentCometActor.withScope(CometActor.this) {
           S.initIfUninitted(theSession) {
             RenderVersion.doWith(uniqueId) {
               S.functionLifespan(true) {
@@ -730,7 +730,7 @@ trait CometActor extends LiftActor with LiftCometActor with BindHelpers {
         }
 
       def isDefinedAt(in: Any): Boolean =
-        CurrentCometActor.doWith(CometActor.this) {
+        CurrentCometActor.withScope(CometActor.this) {
           S.initIfUninitted(theSession) {
             RenderVersion.doWith(uniqueId) {
               S.functionLifespan(true) {

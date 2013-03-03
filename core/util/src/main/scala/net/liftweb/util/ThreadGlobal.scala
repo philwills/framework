@@ -64,7 +64,7 @@ class ThreadGlobal[T]
    * @param x the value to temporarily set in this ThreadGlobal
    * @param f the function to execute
    */
-  def doWith[R](x: T)(f : => R) : R = {
+  def withScope[R](x: T)(f : => R) : R = {
     val original = value
     try {
       threadLocal.set(x)
@@ -77,7 +77,6 @@ class ThreadGlobal[T]
 
 trait DynoVar[T] {
   private val threadLocal = new ThreadLocal[T]
-  // threadLocal.set(Empty)
 
   def is: Box[T] = Box !! threadLocal.get
 

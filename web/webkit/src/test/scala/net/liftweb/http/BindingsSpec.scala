@@ -17,6 +17,7 @@
 package net.liftweb
 package http
 
+import bindings.Bindings
 import xml.{NodeSeq, Text}
 import org.specs2.mutable.Specification
 

@@ -457,7 +457,7 @@ trait HowStateful {
    * session is presented, they have the scope of that session/User
    */
   def doAsStateless[A](f: => A): A =
-    howStateful.doWith(false)(f)
+    howStateful.withScope(false)(f)
 }
 
 /**
@@ -1089,7 +1089,7 @@ class LiftSession(private[http] val _contextPath: String, val uniqueId: String,
     overrideResponseCode.doWith(Empty) {
       (template or findVisibleTemplate(path, request)).map {
         xhtml =>
-          fullPageLoad.doWith(true) {
+          fullPageLoad.withScope(true) {
             // allow parallel snippets
             // Phase 1: snippets & templates processing
             val rawXml: NodeSeq = processSurroundAndInclude(PageName get, xhtml)

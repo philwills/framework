@@ -50,7 +50,7 @@ abstract class WebSpec(boot : () => Any = () => {}) extends Specification {
    */
   private val liftRules = new LiftRules()
 
-  LiftRulesMocker.devTestLiftRulesInstance.doWith(liftRules) {
+  LiftRulesMocker.devTestLiftRulesInstance.withScope(liftRules) {
     boot()
   }
 
@@ -193,8 +193,8 @@ abstract class WebSpec(boot : () => Any = () => {}) extends Specification {
 
     def in(expectations : => Result) =
       exampleFactory newExample(description, {
-        LiftRulesMocker.devTestLiftRulesInstance.doWith(liftRules) {
-          MockWeb.useLiftRules.doWith(true) {
+        LiftRulesMocker.devTestLiftRulesInstance.withScope(liftRules) {
+          MockWeb.useLiftRules.withScope(true) {
             MockWeb.testS(req, session) {
               expectations
             }
@@ -214,8 +214,8 @@ abstract class WebSpec(boot : () => Any = () => {}) extends Specification {
 
     def in(expectations : Req => Result) =
       exampleFactory newExample(description, {
-        LiftRulesMocker.devTestLiftRulesInstance.doWith(liftRules) {
-          MockWeb.useLiftRules.doWith(true) {
+        LiftRulesMocker.devTestLiftRulesInstance.withScope(liftRules) {
+          MockWeb.useLiftRules.withScope(true) {
             MockWeb.testReq(req)(expectations)
           }
         }
@@ -234,8 +234,8 @@ abstract class WebSpec(boot : () => Any = () => {}) extends Specification {
 
     def in(expectations : Box[NodeSeq] => Result) =
       exampleFactory.newExample(description, {
-        LiftRulesMocker.devTestLiftRulesInstance.doWith(liftRules) {
-          MockWeb.useLiftRules.doWith(true) {
+        LiftRulesMocker.devTestLiftRulesInstance.withScope(liftRules) {
+          MockWeb.useLiftRules.withScope(true) {
             MockWeb.testS(req, session) {
               S.request match {
                 case Full(sReq) => expectations(S.runTemplate(sReq.path.partPath))

@@ -28,7 +28,7 @@ import net.liftweb.util._
  */
 class ContinueResponseException(val continue: () => Nothing) extends LiftFlowOfControlException("Continue in new session")
 
-object ContinueResponseException {
+object  ContinueResponseException {
   def unapply(in: Throwable): Option[ContinueResponseException] = in match {
     case null => None
     case cre: ContinueResponseException => Some(cre)

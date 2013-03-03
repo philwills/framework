@@ -1028,27 +1028,6 @@ trait S extends HasParams with Loggable {
     else
       String.format(locale, ?(str), params.flatMap {case s: AnyRef => List(s) case _ => Nil}.toArray: _*)
 
-  /**
-   * Get a core lift localized string or return the original string
-   *
-   * @param str the string to localize
-   *
-   * @return the localized version of the string
-   */
-  @deprecated("Use S.?() instead. S.?? will be removed in 2.6", "2.5")
-  def ??(str: String): String = ?(str)
-
-  /**
-   * Get a core lift localized and formatted string or return the original string.
-   *
-   * @param str the string to localize
-   * @param params the var-arg parameters applied for string formatting
-   *
-   * @return the localized version of the string
-   */
-  @deprecated("Use S.?() instead. S.?? will be removed in 2.6", "2.5")
-  def ??(str: String, params: AnyRef*): String = String.format(locale, ?(str), params: _*)
-
   private def ?!(str: String, resBundle: List[ResourceBundle]): String = resBundle.flatMap(r => tryo(r.getObject(str) match {
     case s: String => Full(s)
     case n: Node => Full(n.text)
@@ -1602,7 +1581,7 @@ trait S extends HasParams with Loggable {
   }
 
   private def _nest2InnerInit[B](f: () => B): B = {
-    __functionMap.doWith(Map()) {
+    __functionMap.withScope(Map()) {
       doAround(aroundRequest) {
         try {
           wrapQuery {
@@ -1637,10 +1616,10 @@ trait S extends HasParams with Loggable {
   }
 
   private def _innerInit[B](request: Req, f: () => B): B = {
-    _lifeTime.doWith(false) {
-      _attrs.doWith((Null,Nil)) {
-          _resBundle.doWith(Nil) {
-            inS.doWith(true) {
+    _lifeTime.withScope(false) {
+      _attrs.withScope((Null,Nil)) {
+          _resBundle.withScope(Nil) {
+            inS.withScope(true) {
               val statefulRequest = doStatefulRewrite(request)
               withReq(statefulRequest) {
                 // set the request for standard requests
@@ -1655,8 +1634,8 @@ trait S extends HasParams with Loggable {
   }
 
   private[http] def withReq[T](req: Req)(f: => T): T = {
-    CurrentReq.doWith(req) {
-      _request.doWith(req) {
+    CurrentReq.withScope(req) {
+      _request.withScope(req) {
         f
       }
     }
@@ -1672,12 +1651,12 @@ trait S extends HasParams with Loggable {
 
 
   private def _init[B](request: Req, session: LiftSession)(f: () => B): B =
-    this._request.doWith(request) {
-      _sessionInfo.doWith(session) {
-        _responseHeaders.doWith(new ResponseInfoHolder) {
+    this._request.withScope(request) {
+      _sessionInfo.withScope(session) {
+        _responseHeaders.withScope(new ResponseInfoHolder) {
           TransientRequestVarHandler(Full(session),
             RequestVarHandler(Full(session),
-              _responseCookies.doWith(CookieHolder(getCookies(containerRequest), Nil)) {
+              _responseCookies.withScope(CookieHolder(getCookies(containerRequest), Nil)) {
                 if (Props.devMode) LiftRules.siteMap // materialize the sitemap very early
                 _innerInit(request, f)
               }
@@ -1716,7 +1695,7 @@ trait S extends HasParams with Loggable {
    * @see LiftRules.unusedFunctionsLifeTime
    */
   def functionLifespan[T](span: Boolean)(f: => T): T =
-    _lifeTime.doWith(span)(f)
+    _lifeTime.withScope(span)(f)
 
   /**
    * Returns whether functions are currently extended to the lifetime of the session.
@@ -2037,13 +2016,6 @@ trait S extends HasParams with Loggable {
     def ~(prefix: String, key: String): Option[NodeSeq] = apply(prefix, key).toOption.map(Text(_))
   }
 
-  /**
-   * Temporarily adds the given attributes to the current set, then executes the given function.
-   *
-   * @param attr The attributes to set temporarily
-   */
-  @deprecated("Use the S.withAttrs method instead", "2.4")
-  def setVars[T](attr: MetaData)(f: => T): T = withAttrs(attr)(f)
 
   /**
    * A function that will eagerly evaluate a template.
@@ -2103,7 +2075,7 @@ trait S extends HasParams with Loggable {
       case m => (Left(m.key), m.value.text)
     }
 
-    _attrs.doWith((attrs, newFrame ::: currentStack))(f)
+    _attrs.withScope((attrs, newFrame ::: currentStack))(f)
   }
 
   /**
@@ -2320,7 +2292,7 @@ trait S extends HasParams with Loggable {
    * @return the value the the expression returns
    */
   def withCurrentSnippetNodeSeq[T](ns: NodeSeq)(f: => T): T =
-  _currentSnippetNodeSeq.doWith(ns)(f)
+  _currentSnippetNodeSeq.withScope(ns)(f)
 
   /**
    * The current raw NodeSeq that resulted in a snippet invocation
@@ -2344,7 +2316,7 @@ trait S extends HasParams with Loggable {
    * @return the return of the code block
    */
   def runSnippetsWithIgnoreFailed[T](ignore: Boolean)(f: => T): T =
-  _ignoreFailedSnippets.doWith(ignore)(f)
+  _ignoreFailedSnippets.withScope(ignore)(f)
 
   /**
    *
@@ -2555,7 +2527,7 @@ trait S extends HasParams with Loggable {
   def disableTestFuncNames_? : Boolean = _disableTestFuncNames.box openOr false
 
   def disableTestFuncNames[T](f: => T): T =
-    _disableTestFuncNames.doWith(true) {
+    _disableTestFuncNames.withScope(true) {
       f
     }
 
@@ -2723,12 +2695,6 @@ trait S extends HasParams with Loggable {
    */
   private[http] def noticesToJsCmd: JsCmd = LiftRules.noticesToJsCmd()
 
-  @deprecated("Use AFuncHolder.listStrToAF", "2.4")
-  def toLFunc(in: List[String] => Any): AFuncHolder = LFuncHolder(in, Empty)
-
-  @deprecated("Use AFuncHolder.unitToAF", "2.4")
-  def toNFunc(in: () => Any): AFuncHolder = NFuncHolder(in, Empty)
-
   implicit def stuff2ToUnpref(in: (Symbol, Any)): UnprefixedAttribute = new UnprefixedAttribute(in._1.name, Text(in._2.toString), Null)
 
   /**
@@ -2783,7 +2749,7 @@ trait S extends HasParams with Loggable {
                     LiftRules.statelessReqTest.toList,
                     System.nanoTime)
 
-      CurrentReq.doWith(req) {
+      CurrentReq.withScope(req) {
         val ses: LiftSession = SessionMaster.getSession(httpRequest,
                                                         Empty) match {
           case Full(ret) =>
@@ -2815,29 +2781,6 @@ trait S extends HasParams with Loggable {
     addFunctionMap(name, SFuncHolder((s: String) => JSONParser.parse(s).map(in) openOr js.JE.JsObj()))
     f(name)
   }
-
-
-  /**
-   * Similar with addFunctionMap but also returns the name.
-   *
-   * Use fmapFunc(AFuncHolder)(String => T)
-   */
-  @deprecated("Use fmapFunc(AFuncHolder)(String => T)", "2.4")
-  def mapFunc(in: AFuncHolder): String = {
-    mapFunc(formFuncName, in)
-  }
-
-  /**
-   * Similar with addFunctionMap but also returns the name.
-   *
-   * Use fmapFunc(AFuncHolder)(String => T)
-   */
-  @deprecated("Use fmapFunc(AFuncHolder)(String => T)", "2.4")
-  def mapFunc(name: String, inf: AFuncHolder): String = {
-    addFunctionMap(name, inf)
-    name
-  }
-
 
   /**
    * Returns all the HTTP parameters having 'n' name
@@ -3027,7 +2970,7 @@ trait S extends HasParams with Loggable {
    * that it cannot be invoked again.
    */
   def callOnce[T](f: => T): T = {
-    autoCleanUp.doWith(true) {
+    autoCleanUp.withScope(true) {
       f
     }
   }
@@ -3038,7 +2981,7 @@ trait S extends HasParams with Loggable {
    * cached and served again if the same function is invoked
    */
   def oneShot[T](f: => T): T =
-    _oneShot.doWith(true) {
+    _oneShot.withScope(true) {
       f
     }
 

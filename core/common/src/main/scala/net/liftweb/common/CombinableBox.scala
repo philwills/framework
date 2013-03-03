@@ -17,6 +17,7 @@
 package net.liftweb 
 package common
 
+/*
 /**
  * <p>
  * Via an HList containing a Collection of Box[things], either generate an
@@ -79,3 +80,4 @@ object CombinableBox {
   
 }
 
+*/

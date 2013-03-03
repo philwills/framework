@@ -138,7 +138,7 @@ trait AnyVarTrait[T, MyType <: AnyVarTrait[T, MyType]] extends PSettableValueHol
       case Full(v) => v
       case _ => val ret = calcDefaultValue
         testInitialized
-      settingDefault.doWith(true) {
+      settingDefault.withScope(true) {
         apply(ret)
       }
         // Use findFunc so that we clear the "unread" flag
