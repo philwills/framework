@@ -118,14 +118,6 @@ object LiftRules extends LiftRulesMocker {
    */
   type LiftRequestPF = PartialFunction[Req, Boolean]
 
-  /*
-  private[this] var _doneBoot = false
-  private[http] def doneBoot = _doneBoot
-
-  private[http] def doneBoot_=(in: Boolean) {_doneBoot = in}
-*/
-
-
   /**
    * Holds the failure information when a snippet can not be executed.
    */

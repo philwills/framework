@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package net.liftweb
 package wizard
 
@@ -613,3 +614,4 @@ trait Wizard extends StatefulSnippet with Factory with ScreenWizardRendered {
   }
 
 }
+*/

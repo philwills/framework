@@ -97,6 +97,7 @@ object LAScheduler extends Loggable {
 }
 
 trait SpecializedLiftActor[T] extends SimpleActor[T]  {
+
   @volatile private[this] var processing = false
   private[this] val baseMailbox: MailboxItem = new SpecialMailbox
   @volatile private[this] var msgList: List[T] = Nil

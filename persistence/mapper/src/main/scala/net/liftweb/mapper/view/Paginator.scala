@@ -16,7 +16,7 @@
 package net.liftweb
 package mapper
 package view
-
+/*
 import scala.xml.{NodeSeq, Text, Elem}
 import net.liftweb.common.Loggable
 import net.liftweb.http.{S,DispatchSnippet}
@@ -100,3 +100,4 @@ class SortedMapperPaginatorSnippet[T <: Mapper[T]](
 ) extends SortedMapperPaginator[T](meta, initialSort, headers: _*)
   with SortedPaginatorSnippet[T, MappedField[_, T]]
 
+*/

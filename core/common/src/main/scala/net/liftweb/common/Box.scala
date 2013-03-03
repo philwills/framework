@@ -430,7 +430,9 @@ sealed abstract class  Box[+A] extends Product with Serializable{
    */
   def pass(f: Box[A] => Unit): Box[A] = {f(this) ; this}
 
-  def recoverWith(func: PartialFunction[Throwable, A]): Box[A] = this
+  def recoverWith[B >: A](func: PartialFunction[Throwable, B]): Box[B] = this
+
+  def recoverWithOrThrow[B >: A](func: PartialFunction[Throwable, B]): Box[B] = this
 
   /**
    * Alias for pass
@@ -503,7 +505,7 @@ sealed abstract class  Box[+A] extends Product with Serializable{
     else Empty)
   }
 
-  def recoverWith(func: PartialFunction[Throwable, A]): A
+//  def recoverWith(func: PartialFunction[Throwable, A]): A
 }
 
 /**
@@ -768,9 +770,18 @@ sealed case class Failure(msg: String, exception: Box[Throwable], chain: Box[Fai
 
   override def ~>[T](errorCode: => T): ParamFailure[T] = ParamFailure(msg, exception, chain, errorCode)
 
-  override def recoverWith(func: PartialFunction[Throwable, A]): Box[A] = {
- //   exception.map(a => func.isDefinedAt(a); a).map(a => func.apply(a))
+  override def recoverWith[B >: A](func: PartialFunction[Throwable, B]): Box[B] = {
+    exception.collect {
+      case a if func.isDefinedAt(a) => func.apply(a)
+    }
+  }
 
+  override def recoverWithOrThrow[B >: A](func: PartialFunction[Throwable, B]): Box[B] = {
+    val rtn = exception.collect {
+      case a if func.isDefinedAt(a) => func.apply(a)
+    }
+    rtn collect { case Failure(_, Full(t), _) => t } foreach { a => throw a }
+    rtn
   }
 }
 
