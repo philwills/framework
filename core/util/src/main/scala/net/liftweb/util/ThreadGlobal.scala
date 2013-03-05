@@ -73,6 +73,15 @@ class ThreadGlobal[T]
       threadLocal.set(original)
     }
   }
+  def doWith[R](x: T)(f : => R) : R = {
+    val original = value
+    try {
+      threadLocal.set(x)
+      f
+    } finally {
+      threadLocal.set(original)
+    }
+  }
 }
 
 trait DynoVar[T] {

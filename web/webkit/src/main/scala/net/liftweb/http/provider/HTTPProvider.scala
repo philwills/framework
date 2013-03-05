@@ -22,13 +22,15 @@ import net.liftweb.common._
 import net.liftweb.util._
 import java.util.{Locale, ResourceBundle}
 import Helpers._
-import main.LiftServlet
+
+import processing.HTTPProcessing
 
 /**
  * Implement this trait in order to integrate Lift with other underlaying web containers. Not necessarily JEE containers.
  */
-trait HTTPProvider {
-  private var actualServlet: LiftServlet = _
+trait   HTTPProvider {
+
+  private var actualServlet: HTTPProcessing = _
 
   def liftServlet = actualServlet
 
@@ -94,7 +96,7 @@ trait HTTPProvider {
       } finally {
         postBoot
 
-        actualServlet = new LiftServlet(context)
+        actualServlet = new HTTPProcessing(context)
         actualServlet.init
       }
     }

@@ -582,7 +582,7 @@ class LiftSession(private[http] val _contextPath: String, val uniqueId: String,
    * session. There is an entry for every AJAX request we don't *know*
    * has completed successfully or been discarded by the client.
    *
-   * See LiftServlet.handleAjax for how we determine we no longer need
+   * See HTTPProcessing.handleAjax for how we determine we no longer need
    * to hold a reference to an AJAX request.
    */
   private var ajaxRequests = scala.collection.mutable.Map[String,List[AjaxRequestInfo]]()

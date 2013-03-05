@@ -426,7 +426,7 @@ class LiftRules() extends Factory with FormVendor with LazyLoggable {
   }
 
   /**
-   * Hooks to be run when LiftServlet.destroy is called.
+   * Hooks to be run when HTTPProcessing.destroy is called.
    */
   val unloadHooks = RulesSeq[() => Unit]
 

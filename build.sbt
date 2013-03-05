@@ -4,7 +4,7 @@ scalaVersion in ThisBuild := "2.10.0"
 
 organization in ThisBuild          := "net.liftweb"
 
-version in ThisBuild               := "3.0-SNAPSHOT"
+version in ThisBuild               := "3.0-SNAPSHOT-REUBEN"
 
 homepage in ThisBuild              := Some(url("http://www.liftweb.net"))
 
